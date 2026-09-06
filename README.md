@@ -485,7 +485,7 @@ Semua tautan di bawah ini diambil dari situs resmi Reviza: <https://revizayowa.b
 | YouTube | https://www.youtube.com/@reviza4ever |
 | Discord | https://discord.gg/7Nn352cN9b |
 | Grup WhatsApp | https://chat.whatsapp.com/BW0zgEgEPUOI5Arb80RWG0 |
-| Dukungan (Saweria) | https://saweria.co/REVIZAHOSHII |
+| Dukungan (Saweria) | https://saweria.co/REVIZAHOSHI |
 
 ### Saluran (Channel) WhatsApp Reviza
 
@@ -545,7 +545,7 @@ Kebanyakan menambah jenis & opsi pesan yang tidak ada di Baileys upstream:
   dengan LRUCache + mutex, perbaikan newsletter (`/m1/`, thumbnail server, `additionalNodes`),
   `newsletterSubscribed`, pengurangan pemakaian RSS, `lib/Store/make-in-memory-store.js` (`[WIP]`)
 
-**Perlu Anda ketahui sebelum pakai:** ada nilai `DONATE_URL = "https://saweria.co/REVIZAHOSHII"` di
+**Perlu Anda ketahui sebelum pakai:** ada nilai `DONATE_URL = "https://saweria.co/REVIZAHOSHI"` di
 `lib/Defaults/index.js` yang dipakai sebagai **nilai cadangan** pada tiga tempat:
 
 | Kondisi | Yang terjadi |
