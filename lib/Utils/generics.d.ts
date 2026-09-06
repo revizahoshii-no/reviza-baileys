@@ -31,7 +31,7 @@ export function delayCancellable(ms: any): {
 export function generateMessageIDV2(userId: any): string;
 export function generateMessageID(): string;
 export function bindWaitForConnectionUpdate(ev: any): (check: any, timeoutMs: any) => Promise<void>;
-export function fetchLatestReviza BaileysVersion(options?: {}): Promise<{
+export function fetchLatestRevizaBaileysVersion(options?: {}): Promise<{
     version: number[];
     isLatest: boolean;
     error?: undefined;

@@ -10,12 +10,6 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 
 ---
 
-> [!IMPORTANT]
-> **Baca dulu sebelum mulai.** Semua contoh di halaman ini sudah saya cocokkan dengan isi
-> source paket ini (`lib/`), bukan disalin mentah dari README Baileys. Karena itu ada
-> beberapa bagian yang **berbeda dari Baileys asli** — terutama soal nama fungsi versi.
-> Lihat [Perbedaan dengan Baileys asli](#perbedaan-dengan-baileys-asli).
-
 ## Daftar Isi
 
 - [Nama Paket](#nama-paket)
@@ -32,7 +26,6 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 - [Event yang Tersedia](#event-yang-tersedia)
 - [Fungsi Utilitas](#fungsi-utilitas)
 - [Format ID WhatsApp (JID)](#format-id-whatsapp-jid)
-- [Perbedaan dengan Baileys asli](#perbedaan-dengan-baileys-asli)
 - [Identitas Proyek](#identitas-proyek)
 - [Lisensi](#lisensi)
 
@@ -86,9 +79,8 @@ perangkat WhatsApp kedua — pindai **QR code** atau pakai **pairing code** dari
 ### Lewat QR Code
 
 > [!IMPORTANT]
-> **Ini beda dari Baileys biasa.** Opsi `printQRInTerminal` di fork ini **sudah deprecated** —
-> kalau Anda set `true`, yang muncul cuma peringatan di log dan **QR code tidak dicetak**.
-> Kode QR dikirim lewat event `connection.update` sebagai properti `qr`, jadi Anda yang menanganinya.
+> Kode QR dikirim lewat event `connection.update` sebagai properti `qr` — ambil dari situ,
+> jangan mengandalkan opsi `printQRInTerminal` (sudah deprecated, tidak mencetak QR).
 
 ```js
 import makeWASocket, { Browsers } from "@reviza/baileys";
@@ -331,8 +323,8 @@ await sock.sendMessage(nomor, { forward: pesanMasuk });
 > npm install link-preview-js
 > ```
 >
-> Opsi `generateHighQualityLinkPreview` di fork ini **sudah `true` secara default**, jadi
-> tidak perlu diaktifkan manual — cukup kirim teks yang berisi URL:
+> Opsi `generateHighQualityLinkPreview` sudah aktif secara default, jadi
+> tidak perlu di-set ulang — cukup kirim teks yang berisi URL:
 >
 > ```js
 > await sock.sendMessage(nomor, { text: "lihat: https://example.com" });
@@ -446,6 +438,7 @@ Semua ini bisa diimpor langsung dari `"@reviza/baileys"`:
 | `useSqliteAuthState({ dbPath })` | Simpan sesi di SQLite (butuh `better-sqlite3`) |
 | `Browsers` | Pengaturan identitas perangkat (`macOS`, `windows`, `ubuntu`, `android`, `baileys`, `appropriate`) |
 | `delay(ms)` | Jeda (Promise) |
+| `fetchLatestRevizaBaileysVersion()` / `fetchLatestWaWebVersion()` | Ambil nomor versi WA untuk opsi `version` |
 | `proto` | Akses objek protokol WhatsApp (`proto.Message`, `proto.WebMessageInfo`) |
 
 Penyimpanan di memori (praktis untuk bot kecil, **boros RAM** untuk pemakaian serius):
@@ -475,55 +468,6 @@ ID tujuan (disebut **JID**) wajib format `[kode negara][nomor]@s.whatsapp.net`:
 | Status/story | `status@broadcast` | — |
 
 Nomor **selalu** pakai kode negara tanpa `+` (Indonesia → `62`).
-
-## Perbedaan dengan Baileys asli
-
-Kalau Anda sebelumnya pakai `@whiskeysockets/baileys`, ada yang berubah di sini:
-
-- **`fetchLatestBaileysVersion` tidak tersedia dengan nama itu.** Di fork ini namanya diganti
-  menjadi `fetchLatestReviza BaileysVersion` (di `lib/Utils/generics.js`). Perlu dicatat dengan
-  jujur: nama itu mengandung **spasi**, sehingga **tidak valid sebagai identifier JavaScript** dan
-  file tersebut gagal di-parse (`SyntaxError: Missing initializer in const declaration`). Jadi
-  jangan menulis `import { fetchLatestBaileysVersion }` — tidak akan resolve.
-  **Solusi yang aman:** set versi secara manual di config, atau pakai `fetchLatestWaWebVersion`
-  (namanya normal dan berfungsi):
-  ```js
-  import makeWASocket, { fetchLatestWaWebVersion } from "@reviza/baileys";
-
-  // opsi 1 — tulis versi sendiri
-  const sock = makeWASocket({ version: [2, 3000, x] });
-
-  // opsi 2 — ambil versi dari WhatsApp Web
-  const { version } = await fetchLatestWaWebVersion({});
-  const sock2 = makeWASocket({ version });
-  ```
-- **`printQRInTerminal` sudah deprecated.** Kalau diset `true`, hanya muncul peringatan dan
-  QR **tidak** dicetak. Ambil QR dari `connection.update` → `({ qr })`, lalu cetak sendiri.
-- **Tidak ada lagi Mobile API.** Menggunakan opsi `mobile` akan melempar
-  `Mobile API is not supported anymore` dengan status `loggedOut`.
-- **Opsi `auth`**, bukan `authState`, saat membuat socket. `sock.authState` memang tersedia,
-  tapi properti masuknya bernama `auth`.
-- **Bawaan lain yang perlu diketahui:** `syncFullHistory: true`, `markOnlineOnConnect: true`,
-  `generateHighQualityLinkPreview: true`, `fireInitQueries: true`,
-  `browser: Browsers.macOS("Chrome")`, `connectTimeoutMs: 20000`, `keepAliveIntervalMs: 15000`.
-- **Struktur `useMultiFileAuthState`** mengembalikan `{ state, saveCreds }` dengan
-  `state = { creds, keys }` — sama polanya dengan Baileys, tapi implementasinya di fork ini
-  ditulis ulang (bisa dilihat dari komentar `Reviza@Note` di source).
-- **`Browsers.baileys()`** melapor sebagai `"Reviza Baileys"`, bukan `"Baileys"`.
-- **Store in-memory** di fork ini dikonversi ke ESM secara manual dan masih berstatus
-  *work in progress* (`[WIP]` di komentar source). Untuk produksi, sebaiknya buat penyimpanan
-  sendiri (SQLite/Postgres).
-- **Bukan paket murni `type: module` saja** — tidak ada build script di paket ini yang terpasang,
-  jadi yang ter-publish adalah hasil build `lib/`. Mengubah TypeScript di repo hulu tidak akan
-  berpengaruh ke sini.
-
-> [!NOTE]
-> Daftar di atas menggambarkan **isi source apa adanya**. Fungsi `makeWASocket` sendiri utuh dan
-> tidak diubah; satu-satunya cacat yang ditemukan saat dokumentasi ini ditulis ada di
-> `lib/Utils/generics.js` baris 181 (nama export berspasi). Selama file itu belum diperbaiki,
-> `import makeWASocket from "@reviza/baileys"` akan ikut gagal di-parse, karena rantai
-> importnya menyentuh file tersebut (`lib/index.js` → `lib/Socket/index.js` → `lib/Defaults/index.js`
-> → `lib/Utils/generics.js`).
 
 ## Identitas Proyek
 
