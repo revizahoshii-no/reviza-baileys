@@ -1,6 +1,6 @@
 {
-  "name": "@reviza/baileys",
-  "version": "0.3.18-final",
+  "name": "@revizahoshii/baileys",
+  "version": "0.3.18",
   "description": "Pustaka WhatsApp Baileys untuk kebutuhan bot dan aplikasi Reviza.",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -104,8 +104,10 @@
     "underscore": "^1.13.8",
     "yaml@npm:^2.6.1": "^2.8.4"
   },
-  "packageManager": "yarn@4.9.2",
   "bugs": {
     "url": "https://github.com/revizahoshii-no/reviza-baileys/issues"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

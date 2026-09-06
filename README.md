@@ -32,7 +32,7 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 
 ## Nama Paket
 
-`@reviza/baileys`
+`@revizahoshii/baileys`
 
 ## Prasyarat
 
@@ -44,10 +44,10 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 
 ## Instalasi
 
-Dari registry (jika sudah dirilis):
+Dari registry npm:
 
 ```bash
-npm install @reviza/baileys
+npm install @revizahoshii/baileys
 ```
 
 Langsung dari repository GitHub ini:
@@ -59,14 +59,14 @@ npm install github:revizahoshii-no/reviza-baileys
 Lalu impor di kode Anda:
 
 ```js
-import makeWASocket from "@reviza/baileys";
+import makeWASocket from "@revizahoshii/baileys";
 ```
 
 Di project CommonJS (`require`):
 
 ```js
 async function main() {
-  const { default: makeWASocket } = await import("@reviza/baileys");
+  const { default: makeWASocket } = await import("@revizahoshii/baileys");
   // ... lanjutkan di sini
 }
 main();
@@ -84,7 +84,7 @@ perangkat WhatsApp kedua — pindai **QR code** atau pakai **pairing code** dari
 > jangan mengandalkan opsi `printQRInTerminal` (sudah deprecated, tidak mencetak QR).
 
 ```js
-import makeWASocket, { Browsers } from "@reviza/baileys";
+import makeWASocket, { Browsers } from "@revizahoshii/baileys";
 
 const sock = makeWASocket({
     browser: Browsers.ubuntu("Reviza App")
@@ -116,7 +116,7 @@ Pairing code dipakai kalau tidak bisa memindai QR (misalnya di server/VPS).
 Nomor **tanpa** `+`, `()`, atau `-` — awali dengan kode negara. Untuk Indonesia pakai `62`.
 
 ```js
-import makeWASocket from "@reviza/baileys";
+import makeWASocket from "@revizahoshii/baileys";
 
 const sock = makeWASocket({});
 
@@ -140,7 +140,7 @@ Kalau panjangnya bukan 8, akan error: `Custom pairing code must be exactly 8 cha
 Supaya tidak perlu memindai QR berulang kali, simpan kredensial ke folder:
 
 ```js
-import makeWASocket, { useMultiFileAuthState } from "@reviza/baileys";
+import makeWASocket, { useMultiFileAuthState } from "@revizahoshii/baileys";
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_reviza");
 
@@ -163,7 +163,7 @@ sock.ev.on("creds.update", saveCreds);
 Agar sesi makin awet dan tidak sering diminta pairing ulang, bungkus key store dengan cache:
 
 ```js
-import makeWASocket, { useMultiFileAuthState, makeCacheableSignalKeyStore } from "@reviza/baileys";
+import makeWASocket, { useMultiFileAuthState, makeCacheableSignalKeyStore } from "@revizahoshii/baileys";
 import pino from "pino";
 
 const logger = pino({ level: "silent" });
@@ -185,7 +185,7 @@ sock.ev.on("creds.update", saveCreds);
 Ini pola dasar yang paling umum dipakai: tangkap pesan masuk, balas, tangani koneksi putus.
 
 ```js
-import makeWASocket, { DisconnectReason, useMultiFileAuthState } from "@reviza/baileys";
+import makeWASocket, { DisconnectReason, useMultiFileAuthState } from "@revizahoshii/baileys";
 import { Boom } from "@hapi/boom";
 
 async function jalankanBot() {
@@ -361,7 +361,7 @@ Bentuk yang salah ditolak dengan pesan jelas, bukan crash: `Invalid album type. 
 ## Menerima & Mengunduh Media
 
 ```js
-import { downloadMediaMessage } from "@reviza/baileys";
+import { downloadMediaMessage } from "@revizahoshii/baileys";
 import fs from "node:fs";
 
 sock.ev.on("messages.upsert", async ({ messages }) => {
@@ -445,7 +445,7 @@ sock.ev.on("group-participants.update", async (event) => {
 
 ## Fungsi Utilitas
 
-Semua ini bisa diimpor langsung dari `"@reviza/baileys"`:
+Semua ini bisa diimpor langsung dari `"@revizahoshii/baileys"`:
 
 | Fungsi | Kegunaan |
 |---|---|
@@ -474,7 +474,7 @@ Semua ini bisa diimpor langsung dari `"@reviza/baileys"`:
 Penyimpanan di memori (praktis untuk bot kecil, **boros RAM** untuk pemakaian serius):
 
 ```js
-import makeWASocket, { makeInMemoryStore } from "@reviza/baileys";
+import makeWASocket, { makeInMemoryStore } from "@revizahoshii/baileys";
 
 const store = makeInMemoryStore({});
 store.readFromFile("./reviza_store.json");
@@ -551,7 +551,7 @@ Paket ini adalah proyek pribadi **Reviza**, dikemas untuk kebutuhan bot dan apli
 
 | Aspek | Keterangan |
 |---|---|
-| Nama paket | `@reviza/baileys` |
+| Nama paket | `@revizahoshii/baileys` |
 | Versi | `0.3.18-final` |
 | Pemegang hak cipta | **Reviza** — © 2026 (lihat `LICENSE`) |
 | Penulis di `package.json` | `author: "Reviza"` |
@@ -578,7 +578,7 @@ Kebanyakan menambah jenis & opsi pesan yang tidak ada di Baileys upstream:
 | Kondisi | Yang terjadi |
 |---|---|
 | `externalAdReply` dikirim tanpa `url` | `url` diisi `DONATE_URL` |
-| `offerText` diisi tapi `offerUrl` kosong | tombol offer menunjuk `DONATE_URL` (teks offer jatuh ke `LIBRARY_NAME`, yaitu `@reviza/baileys`) |
+| `offerText` diisi tapi `offerUrl` kosong | tombol offer menunjuk `DONATE_URL` (teks offer jatuh ke `LIBRARY_NAME`, yaitu `@revizahoshii/baileys`) |
 | `richResponseMessage` punya link tanpa `url` | memakai `DONATE_URL`, label sumbernya `"Donate"` / `"Saweria"` |
 
 Semuanya hanya kena kalau field-nya memang kosong — kirim `url` sendiri dan tidak ada yang berubah.
@@ -603,4 +603,4 @@ Sumber resmi proyek: https://github.com/revizahoshii-no/reviza-baileys
 
 Contoh penggunaan di halaman ini diadaptasi dari dokumentasi
 [Baileys (`WhiskeySockets/Baileys`)](https://github.com/WhiskeySockets/Baileys) dan diterjemahkan
-serta disesuaikan ke `@reviza/baileys`.
+serta disesuaikan ke `@revizahoshii/baileys`.
