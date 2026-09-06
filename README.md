@@ -331,6 +331,33 @@ await sock.sendMessage(nomor, { forward: pesanMasuk });
 > await sock.sendMessage(nomor, { text: "lihat: https://example.com" });
 > ```
 
+### Bentuk pesan khas Reviza
+
+Tiga fitur tambahan di paket ini memakai bentuk payload sendiri — sudah diuji terhadap kode
+yang ter-publish, jadi ikuti persis seperti ini:
+
+```js
+// album: array di tingkat atas, minimal 2 gambar/video (bukan { album: { messages: [...] } })
+await sock.sendMessage(nomor, {
+    caption: "liburan",
+    album: [{ image: { url: "./a.jpg" } }, { video: { url: "./b.mp4" } }]
+});
+
+// quiz: lewat `poll` dengan `pollType: 1` + `correctAnswer` (bukan key `quiz`)
+await sock.sendMessage(nomor, {
+    poll: { name: "Kuis", values: ["Ai", "Ruby"], selectableCount: 1, pollType: 1, correctAnswer: "Ai" }
+});
+
+// list: `sections` di tingkat atas (bukan { list: { sections: [...] } })
+await sock.sendMessage(nomor, {
+    text: "Pilih menu", buttonText: "Menu", title: "Reviza Bot", footer: "ketuk di bawah",
+    sections: [{ title: "Utama", rows: [{ rowId: "1", title: "Cek saldo" }] }]
+});
+```
+
+Bentuk yang salah ditolak dengan pesan jelas, bukan crash: `Invalid album type. Expected an array.`,
+`Minimum provide 2 media to upload album message`, `No "correctAnswer" provided for quiz`.
+
 ## Menerima & Mengunduh Media
 
 ```js
