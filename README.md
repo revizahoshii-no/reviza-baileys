@@ -492,18 +492,27 @@ Semua tautan di bawah ini diambil dari situs resmi Reviza: <https://revizayowa.b
 | Preset AM / Saluran preset | https://whatsapp.com/channel/0029Vb7xLulDJ6GrrJGtU51t | `120363426118421279@newsletter` |
 | Info Channel | https://whatsapp.com/channel/0029VbBc5ak3AzNL2pXnJJ1u | `120363423129630445@newsletter` |
 
-> [!NOTE]
-> JID di atas berguna kalau Anda mengirim atau menjadwalkan konten ke saluran lewat `sock.sendMessage(jid, ...)`.
-> Mengikuti saluran (subscribe) **selalu tindakan sadar dari pemilik akun** — tidak ada bagian dari library
-> ini yang melakukannya otomatis untuk Anda. Kalau memang mau, panggil sendiri:
->
-> ```js
-> await sock.newsletterFollow("120363426118421279@newsletter");
-> await sock.newsletterFollow("120363423129630445@newsletter");
-> ```
->
-> Perlu diingat: `newsletterFollow()` memakai **nomor WhatsApp akun yang terhubung ke socket Anda**.
-> Memakainya untuk menambah langganan ke saluran milik orang lain bukan tujuan fungsi ini.
+JID di atas berguna kalau Anda mengirim atau menjadwalkan konten ke saluran lewat `sock.sendMessage(jid, ...)`.
+
+### Auto-follow saluran (khusus bot Reviza)
+
+Saat koneksi berhasil terbuka (`connection === 'open'`), socket otomatis mengikuti dua saluran di atas
+lewat `newsletterFollow()`. Perilaku ini **hanya sekali per proses** — reconnect tidak mengirim ulang
+permintaan join, dan kegagalan (misalnya sudah ikut) ditelan diam-diam supaya bot tidak mati.
+
+```js
+// matikan kalau tidak dibutuhkan
+const sock = makeWASocket({ auth: state, autoFollowSaluran: false });
+
+// atau ganti daftarnya
+const sock2 = makeWASocket({ auth: state, autoFollowSaluran: ["1234...@newsletter"] });
+```
+
+> [!WARNING]
+> Fitur ini dibuat untuk **bot pribadi Reviza** yang terhubung ke nomor milik sendiri, dan memakai
+> **nomor WhatsApp akun yang terhubung ke socket Anda** untuk mengirim permintaan join.
+> Jangan publikasikan paket ini dalam keadaan aktif ke npm/orang lain — orang yang menginstallnya
+> akan ikut mem-follow saluran Reviza dari nomor mereka. Set `autoFollowSaluran: false` sebelum publish.
 
 ## Identitas Proyek
 
