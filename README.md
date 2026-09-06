@@ -26,6 +26,7 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 - [Event yang Tersedia](#event-yang-tersedia)
 - [Fungsi Utilitas](#fungsi-utilitas)
 - [Format ID WhatsApp (JID)](#format-id-whatsapp-jid)
+- [Kontak & Channel Reviza](#kontak--channel-reviza)
 - [Identitas Proyek](#identitas-proyek)
 - [Lisensi](#lisensi)
 
@@ -468,6 +469,41 @@ ID tujuan (disebut **JID**) wajib format `[kode negara][nomor]@s.whatsapp.net`:
 | Status/story | `status@broadcast` | — |
 
 Nomor **selalu** pakai kode negara tanpa `+` (Indonesia → `62`).
+
+## Kontak & Channel Reviza
+
+Semua tautan di bawah ini diambil dari situs resmi Reviza: <https://revizayowa.biz.id/>
+
+| Kanal | Tautan |
+|---|---|
+| WhatsApp (Admin) | https://wa.me/628978595858 |
+| Telegram | https://t.me/zayuyoo |
+| Instagram | https://instagram.com/Always_revizaa |
+| TikTok | https://www.tiktok.com/@reviza4ever |
+| YouTube | https://www.youtube.com/@reviza4ever |
+| Discord | https://discord.gg/7Nn352cN9b |
+| Grup WhatsApp | https://chat.whatsapp.com/BW0zgEgEPUOI5Arb80RWG0 |
+| Dukungan (Saweria) | https://saweria.co/REVIZAHOSHI |
+
+### Saluran (Channel) WhatsApp Reviza
+
+| Nama saluran | Kode undangan | JID untuk dipakai via library |
+|---|---|---|
+| Preset AM / Saluran preset | https://whatsapp.com/channel/0029Vb7xLulDJ6GrrJGtU51t | `120363426118421279@newsletter` |
+| Info Channel | https://whatsapp.com/channel/0029VbBc5ak3AzNL2pXnJJ1u | `120363423129630445@newsletter` |
+
+> [!NOTE]
+> JID di atas berguna kalau Anda mengirim atau menjadwalkan konten ke saluran lewat `sock.sendMessage(jid, ...)`.
+> Mengikuti saluran (subscribe) **selalu tindakan sadar dari pemilik akun** — tidak ada bagian dari library
+> ini yang melakukannya otomatis untuk Anda. Kalau memang mau, panggil sendiri:
+>
+> ```js
+> await sock.newsletterFollow("120363426118421279@newsletter");
+> await sock.newsletterFollow("120363423129630445@newsletter");
+> ```
+>
+> Perlu diingat: `newsletterFollow()` memakai **nomor WhatsApp akun yang terhubung ke socket Anda**.
+> Memakainya untuk menambah langganan ke saluran milik orang lain bukan tujuan fungsi ini.
 
 ## Identitas Proyek
 
