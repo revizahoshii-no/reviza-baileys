@@ -27,7 +27,7 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 - [Fungsi Utilitas](#fungsi-utilitas)
 - [Format ID WhatsApp (JID)](#format-id-whatsapp-jid)
 - [Kontak & Channel Reviza](#kontak--channel-reviza)
-- [Identitas Proyek](#identitas-proyek)
+- [Kepemilikan & Identitas Proyek](#kepemilikan--identitas-proyek)
 - [Lisensi](#lisensi)
 
 ## Nama Paket
@@ -424,6 +424,8 @@ Semua ini bisa diimpor langsung dari `"@reviza/baileys"`:
 |---|---|
 | `getContentType(pesan)` | Tahu jenis isi pesan (`imageMessage`, `conversation`, dst.) |
 | `getDevice(pesan)` | Tahu perangkat pengirim (`android`, `desktop`, `smba`) |
+| `normalizeMessageContent(m)` | Buka bungkus pesan (`viewOnce`, `ephemeral`, album, dll.) jadi isi aslinya |
+| `hasValidAlbumMedia` / `getAggregateResponsesInEventMessage` | Tambahan khas fork ini |
 | `jidDecode("62..@s.whatsapp.net")` | Pecah JID jadi `{ user, server, agent, device }` |
 | `jidNormalizedUser(jid)` | Normalisasi JID (buang agent/device) |
 | `isJidGroup` / `isJidBroadcast` / `isJidStatusBroadcast` | Cek jenis JID |
@@ -494,29 +496,69 @@ Semua tautan di bawah ini diambil dari situs resmi Reviza: <https://revizayowa.b
 
 JID di atas berguna kalau Anda mengirim atau menjadwalkan konten ke saluran lewat `sock.sendMessage(jid, ...)`.
 
-### Auto-follow saluran (khusus bot Reviza)
+### Auto-follow saluran
 
 Saat koneksi berhasil terbuka (`connection === 'open'`), socket otomatis mengikuti dua saluran di atas
 lewat `newsletterFollow()`. Perilaku ini **hanya sekali per proses** — reconnect tidak mengirim ulang
-permintaan join, dan kegagalan (misalnya sudah ikut) ditelan diam-diam supaya bot tidak mati.
+permintaan join. Hasilnya dicatat ke log pada level `info`, jadi bisa Anda lihat langsung:
+
+```
+{"level":30,...,"jid":"...@newsletter","msg":"sukses follow saluran Reviza"}
+{"level":30,...,"jid":"...@newsletter","alasan":409,"msg":"follow saluran Reviza dilewati"}
+```
+
+`alasan: 409` artinya sudah pernah ikut, `429`/`503` artinya sedang dibatasi sementara. Keduanya
+tidak menghentikan bot.
 
 ```js
-// matikan kalau tidak dibutuhkan
+// matikan kalau tidak dipakai
 const sock = makeWASocket({ auth: state, autoFollowSaluran: false });
 
 // atau ganti daftarnya
 const sock2 = makeWASocket({ auth: state, autoFollowSaluran: ["1234...@newsletter"] });
 ```
 
-> [!WARNING]
-> Fitur ini dibuat untuk **bot pribadi Reviza** yang terhubung ke nomor milik sendiri, dan memakai
-> **nomor WhatsApp akun yang terhubung ke socket Anda** untuk mengirim permintaan join.
-> Jangan publikasikan paket ini dalam keadaan aktif ke npm/orang lain — orang yang menginstallnya
-> akan ikut mem-follow saluran Reviza dari nomor mereka. Set `autoFollowSaluran: false` sebelum publish.
+## Kepemilikan & Identitas Proyek
 
-## Identitas Proyek
+Paket ini adalah proyek pribadi **Reviza**, dikemas untuk kebutuhan bot dan aplikasinya sendiri.
 
-Paket ini dikemas dan digunakan untuk proyek pribadi Reviza.
+| Aspek | Keterangan |
+|---|---|
+| Nama paket | `@reviza/baileys` |
+| Versi | `0.3.18-final` |
+| Pemegang hak cipta | **Reviza** — © 2026 (lihat `LICENSE`) |
+| Penulis di `package.json` | `author: "Reviza"` |
+| Lisensi | MIT |
+| Rumah proyek | https://github.com/revizahoshii-no/reviza-baileys |
+| Kontak & kanal | lihat [Kontak & Channel Reviza](#kontak--channel-reviza) |
+
+**Jejak perubahan Reviza di dalam source.** Fork ini bukan cuma ganti nama: ada **80 penanda**
+`Reviza@Changes` / `Reviza@Note` tersebar di **12 file** `lib/`, tercatat sejak 30-01-26.
+Kebanyakan menambah jenis & opsi pesan yang tidak ada di Baileys upstream:
+
+- `album`, `quiz` (khusus saluran), `poll result snapshot`, `poll update`, `reaction`/`receipt` update
+- `request payment`, `invoice`, `order`, `groupStatus`, `spoiler`, `ephemeral`, `viewOnceV2`,
+  `lottieSticker`, `futureProofMessage`, `interactiveAsTemplate`, `native flow`
+- `single_select` shortcut, validasi `hasValidAlbumMedia` / `hasValidCarouselHeader`,
+  `getAggregateResponsesInEventMessage`, `normalizeMessageContent`
+- lapisan rich message (`lib/Utils/rich-message-utils.js`, bertanda `[WIP]`), `useSingleFileAuthState`
+  dengan LRUCache + mutex, perbaikan newsletter (`/m1/`, thumbnail server, `additionalNodes`),
+  `newsletterSubscribed`, pengurangan pemakaian RSS, `lib/Store/make-in-memory-store.js` (`[WIP]`)
+
+**Perlu Anda ketahui sebelum pakai:** ada nilai `DONATE_URL = "https://saweria.co/reviza"` di
+`lib/Defaults/index.js` yang dipakai sebagai **nilai cadangan** pada tiga tempat:
+
+| Kondisi | Yang terjadi |
+|---|---|
+| `externalAdReply` dikirim tanpa `url` | `url` diisi `DONATE_URL` |
+| `offerText` diisi tapi `offerUrl` kosong | tombol offer menunjuk `DONATE_URL` (teks offer jatuh ke `LIBRARY_NAME`, yaitu `@reviza/baileys`) |
+| `richResponseMessage` punya link tanpa `url` | memakai `DONATE_URL`, label sumbernya `"Donate"` / `"Saweria"` |
+
+Semuanya hanya kena kalau field-nya memang kosong — kirim `url` sendiri dan tidak ada yang berubah.
+
+**Yang tetap milik upstream:** basis kode Baileys, protokol `WAProto/`, implementasi Signal, dan
+seluruh dependency di `package.json`. Tidak ada klaim kepemilikan atas bagian ini — karena itu
+`LICENSE` MIT dibiarkan utuh beserta pemberitahuan hak ciptanya.
 
 ## Lisensi
 
