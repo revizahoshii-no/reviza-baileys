@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://raw.githubusercontent.com/revizahoshii-no/reviza-baileys/main/banner.jpg" alt="Reviza Baileys" width="100%">
+</p>
+
 <h1 align="center">Reviza Baileys</h1>
 
 <div align="center">
