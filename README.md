@@ -510,10 +510,6 @@ Library ini bisa **menelepon nomor WhatsApp** dan memutar audio ke dalam
 panggilan itu — mirip bot musik di Discord. Cocok untuk fitur *fake call*
 atau pemutar musik lewat telepon WA.
 
-> Modul VoIP ini berasal dari library **`ourin-baileys`** karya **zanpiww**
-> (pengembang Ourin MD), dipakai atas izin langsung dari beliau. Lisensi MIT.
-> Terima kasih banyak, zanpiww.
-
 ### Prasyarat tambahan
 
 **`ffmpeg` wajib terpasang** di server/PC Anda — dipakai untuk mengubah file
