@@ -26,6 +26,7 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 - [Event yang Tersedia](#event-yang-tersedia)
 - [Fungsi Utilitas](#fungsi-utilitas)
 - [Format ID WhatsApp (JID)](#format-id-whatsapp-jid)
+- [Panggilan Suara (VoIP)](#panggilan-suara-voip)
 - [Kontak & Channel Reviza](#kontak--channel-reviza)
 - [Kepemilikan & Identitas Proyek](#kepemilikan--identitas-proyek)
 - [Lisensi](#lisensi)
@@ -498,6 +499,101 @@ ID tujuan (disebut **JID**) wajib format `[kode negara][nomor]@s.whatsapp.net`:
 | Status/story | `status@broadcast` | — |
 
 Nomor **selalu** pakai kode negara tanpa `+` (Indonesia → `62`).
+
+## Panggilan Suara (VoIP)
+
+Library ini bisa **menelepon nomor WhatsApp** dan memutar audio ke dalam
+panggilan itu — mirip bot musik di Discord. Cocok untuk fitur *fake call*
+atau pemutar musik lewat telepon WA.
+
+> Modul VoIP ini berasal dari library **`ourin-baileys`** karya **zanpiww**
+> (pengembang Ourin MD), dipakai atas izin langsung dari beliau. Lisensi MIT.
+> Terima kasih banyak, zanpiww.
+
+### Prasyarat tambahan
+
+**`ffmpeg` wajib terpasang** di server/PC Anda — dipakai untuk mengubah file
+audio menjadi PCM yang bisa dikirim ke panggilan.
+
+```bash
+# Ubuntu / Debian / VPS
+sudo apt install ffmpeg
+
+# Termux
+pkg install ffmpeg
+```
+
+Cek berhasil: `ffmpeg -version`.
+
+### Cara pakai
+
+`VoipClient` dipakai **menempel pada socket yang sudah tersambung**, jadi
+akun harus sudah login lebih dulu.
+
+```js
+import makeWASocket, { useMultiFileAuthState, VoipClient } from "@revizahoshii/baileys";
+
+const { state, saveCreds } = await useMultiFileAuthState("./auth");
+const sock = makeWASocket({ auth: state });
+sock.ev.on("creds.update", saveCreds);
+
+sock.ev.on("connection.update", async ({ connection }) => {
+  if (connection !== "open") return;
+
+  const voip = new VoipClient();
+  await voip.connectWithSocket(sock);
+
+  const call = await voip.call("6281234567890", {
+    durationMs: 30_000,        // telepon otomatis ditutup setelah 30 detik
+    audioSource: "./lagu.mp3", // audio yang diputar ke lawan bicara
+  });
+
+  call.on("ringing",   () => console.log("HP tujuan berdering..."));
+  call.on("connected", () => console.log("Panggilan diangkat, musik diputar"));
+  call.on("ended",     (alasan) => console.log("Panggilan selesai:", alasan));
+
+  await call.waitForEnd();
+  voip.disconnect();
+});
+```
+
+### Pilihan `audioSource`
+
+| Nilai | Artinya |
+|---|---|
+| `"silence"` | **Default.** Tidak ada suara — murni *fake call*. |
+| `"./lagu.mp3"` | Putar file audio dari disk (format apa pun yang didukung ffmpeg). |
+| `"https://..."` | Putar audio langsung dari URL streaming. |
+| `"lavfi:sine=frequency=440"` | Nada buatan lewat filter ffmpeg. |
+
+### Method dan event
+
+| Anggota | Kegunaan |
+|---|---|
+| `new VoipClient()` | Membuat klien VoIP. |
+| `voip.connectWithSocket(sock)` | Menempel ke socket yang sudah login. **Wajib dipanggil dulu.** |
+| `voip.call(nomor, opsi)` | Memulai panggilan, mengembalikan objek `ActiveCall`. |
+| `voip.disconnect()` | Menutup semua dan melepas memori. |
+| `call.end()` | Menutup panggilan lebih awal. |
+| `call.mute(true)` | Membisukan mikrofon. |
+| `call.waitForEnd()` | `await` sampai panggilan berakhir. |
+| `call.state` | Status saat ini (lihat `CallState`). |
+| Event `ringing` | HP tujuan mulai berdering. |
+| Event `connected` | Panggilan diangkat. |
+| Event `audio` | Menerima PCM suara dari lawan bicara. |
+| Event `ended` | Panggilan berakhir, membawa alasannya. |
+
+`CallState` berisi: `Idle` `Calling` `PreacceptReceived` `ReceivedCall`
+`AcceptSent` `AcceptReceived` `Active` `ActiveElsewhere` `Ending`.
+
+### Catatan penting
+
+- Nomor tujuan ditulis **tanpa** `@s.whatsapp.net` — cukup `6281234567890`.
+- Panggilan berjalan dari akun yang sedang login, jadi tercatat di riwayat
+  telepon WhatsApp akun tersebut.
+- Modul ini memuat mesin WASM ±9,8 MB saat pertama dipakai. Wajar kalau
+  panggilan pertama sedikit lebih lambat.
+- Jangan dipakai untuk spam telepon — akun berisiko diblokir WhatsApp.
 
 ## Kontak & Channel Reviza
 
