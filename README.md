@@ -34,6 +34,7 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 - [Kontak & Channel Reviza](#kontak--channel-reviza)
 - [Kepemilikan & Identitas Proyek](#kepemilikan--identitas-proyek)
 - [Lisensi](#lisensi)
+- [Kredit & Terima Kasih](#kredit--terima-kasih)
 
 ## Nama Paket
 
@@ -700,3 +701,20 @@ Sumber resmi proyek: https://github.com/revizahoshii-no/reviza-baileys
 Contoh penggunaan di halaman ini diadaptasi dari dokumentasi
 [Baileys (`WhiskeySockets/Baileys`)](https://github.com/WhiskeySockets/Baileys) dan diterjemahkan
 serta disesuaikan ke `@revizahoshii/baileys`.
+
+## Kredit & Terima Kasih
+
+Pustaka ini tidak berdiri sendiri — ia berdiri di atas kerja banyak pihak. Terima kasih
+sebesar-besarnya untuk semua fork dan pengembang Baileys yang karyanya mengalir ke
+`@revizahoshii/baileys`:
+
+| Proyek / Pengembang | Peran |
+|---|---|
+| [**Baileys** — Adhiraj Singh (`adiwajshing`)](https://github.com/adiwajshing/Baileys) | Pustaka asal. Basis kode, protokol `WAProto/`, dan implementasi Signal berasal dari sini |
+| [**Baileys** — WhiskeySockets](https://github.com/WhiskeySockets/Baileys) | Kelanjutan resmi Baileys yang menjadi dasar fork ini |
+| [**Baileys** — itsliaa](https://github.com/itsliaa) | Salah satu pengembang di ekosistem fork Baileys — terima kasih atas karya dan kontribusinya |
+| [**ourin-baileys** — zanpiww (`@Zann`)](https://www.npmjs.com/package/ourin-baileys) | Pengembang Ourin MD. Modul **VoIP** (panggilan suara / *fake call* + putar musik) di pustaka ini berasal dari `ourin-baileys` dan dipakai **atas izin langsung dari beliau**, Lisensi MIT — terima kasih banyak, zanpiww |
+| [**reviza-baileys** — Reviza](https://github.com/revizahoshii-no/reviza-baileys) | Proyek ini sendiri: penyesuaian, penambahan jenis & opsi pesan, dan pemeliharaan |
+
+Tidak ada klaim kepemilikan atas bagian mana pun yang berasal dari proyek-proyek di atas.
+Pemberitahuan hak cipta dan ketentuan lisensinya tetap tersedia di file `LICENSE`.
