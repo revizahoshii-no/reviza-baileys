@@ -694,6 +694,82 @@ di file `LICENSE`. File tersebut tidak dihapus atau diubah.
 Jangan menghapus file `LICENSE` ketika menyalin atau menggunakan paket ini apabila ketentuan
 lisensinya mewajibkan pemberitahuan tersebut tetap disertakan.
 
+## Balasan Bercentang Biru (Verified Reply)
+
+Membuat balasan bot tampil seolah mengutip pesan dari saluran terverifikasi, sehingga
+muncul lencana centang biru pada kutipan. Tersedia preset **WhatsApp**, **Meta AI**,
+dan saluran **custom** milikmu sendiri.
+
+### Cara tercepat
+
+Helper ini otomatis terpasang pada socket:
+
+```js
+await sock.sendVerifiedReply(jid, { text: 'Halo!' }, { preset: 'whatsapp' })
+await sock.sendVerifiedReply(jid, { text: 'Halo!' }, { preset: 'meta' })
+```
+
+### Saluran custom
+
+```js
+await sock.sendVerifiedReply(jid, { text: 'Halo!' }, {
+  name: 'Reviza Official',
+  jid: '120363420054181921@newsletter',
+  text: 'Pesan dari saluran resmi',
+})
+```
+
+### Membungkus isi pesan sendiri
+
+`withVerifiedReply` bisa dipakai pada jenis pesan apa pun (teks, gambar, video, dan lainnya):
+
+```js
+import { withVerifiedReply } from '@revizahoshii/baileys'
+
+await sock.sendMessage(jid, withVerifiedReply(
+  { image: { url: './gambar.jpg' }, caption: 'Halo!' },
+  { preset: 'meta' },
+))
+```
+
+### Sebagai objek `quoted`
+
+```js
+import { createVerifiedQuote } from '@revizahoshii/baileys'
+
+await sock.sendMessage(jid, { text: 'Halo' }, {
+  quoted: createVerifiedQuote({ preset: 'whatsapp', text: 'Pemberitahuan resmi' }),
+})
+```
+
+### Opsi
+
+| Opsi | Tipe | Keterangan |
+|---|---|---|
+| `preset` | `'whatsapp'` \| `'meta'` | Identitas bawaan. Default `'whatsapp'` |
+| `name` | `string` | Nama yang tampil pada kutipan (menimpa preset) |
+| `jid` | `string` | JID saluran, wajib berakhiran `@newsletter` (menimpa preset) |
+| `text` | `string` | Isi pesan yang seolah dikutip |
+| `participant` | `string` | Pengirim kutipan. Default `0@s.whatsapp.net` |
+| `serverMessageId` | `number` | ID pesan pada saluran. Diacak bila dikosongkan |
+| `contentType` | `number` | Lihat `VerifiedContentType` (`UPDATE`, `UPDATE_CARD`, `LINK_CARD`) |
+| `quotedMessage` | `object` | Pesan kutipan custom, menimpa `text` |
+| `contextInfo` | `object` | `contextInfo` tambahan yang digabungkan |
+
+### Fungsi yang tersedia
+
+| Fungsi | Kegunaan |
+|---|---|
+| `sock.sendVerifiedReply(jid, content, options, sendOptions)` | Kirim langsung, cara paling singkat |
+| `withVerifiedReply(content, options)` | Bungkus isi pesan apa pun |
+| `createVerifiedQuote(options)` | Hasilkan objek `quoted` palsu |
+| `buildVerifiedContextInfo(options)` | Hasilkan `contextInfo` mentah |
+| `buildVerifiedNewsletterInfo(options)` | Hasilkan `forwardedNewsletterMessageInfo` saja |
+| `bindVerifiedReply(sock)` | Pasang manual ke socket (sudah otomatis) |
+
+> Fitur ini hanya mengubah tampilan kutipan di sisi penerima dan tidak memberi
+> verifikasi resmi apa pun pada akunmu. Gunakan dengan bijak.
+
 ## Repository
 
 Sumber resmi proyek: https://github.com/revizahoshii-no/reviza-baileys
@@ -712,8 +788,7 @@ sebesar-besarnya untuk semua fork dan pengembang Baileys yang karyanya mengalir 
 |---|---|
 | [**Baileys** — Adhiraj Singh (`adiwajshing`)](https://github.com/adiwajshing/Baileys) | Pustaka asal. Basis kode, protokol `WAProto/`, dan implementasi Signal berasal dari sini |
 | [**Baileys** — WhiskeySockets](https://github.com/WhiskeySockets/Baileys) | Kelanjutan resmi Baileys yang menjadi dasar fork ini |
-| [**Baileys** — itsliaa](https://github.com/itsliaa) | Salah satu pengembang di ekosistem fork Baileys — terima kasih atas karya dan kontribusinya |
-| [**ourin-baileys** — zanpiww (`@Zann`)](https://www.npmjs.com/package/ourin-baileys) | Pengembang Ourin MD. Modul **VoIP** (panggilan suara / *fake call* + putar musik) di pustaka ini berasal dari `ourin-baileys` dan dipakai **atas izin langsung dari beliau**, Lisensi MIT — terima kasih banyak, zanpiww |
+| [**ourin-baileys** — zanpiww (`@Zann`)](https://www.npmjs.com/package/ourin-baileys) | Pengembang Ourin MD. Modul **VoIP** (panggilan suara / *fake call* + putar musik) di pustaka ini berasal dari `ourin-baileys` (Lisensi MIT) — terima kasih banyak, zanpiww |
 | [**reviza-baileys** — Reviza](https://github.com/revizahoshii-no/reviza-baileys) | Proyek ini sendiri: penyesuaian, penambahan jenis & opsi pesan, dan pemeliharaan |
 
 Tidak ada klaim kepemilikan atas bagian mana pun yang berasal dari proyek-proyek di atas.
