@@ -694,6 +694,57 @@ di file `LICENSE`. File tersebut tidak dihapus atau diubah.
 Jangan menghapus file `LICENSE` ketika menyalin atau menggunakan paket ini apabila ketentuan
 lisensinya mewajibkan pemberitahuan tersebut tetap disertakan.
 
+### Kutipan bercentang biru tanpa akun terverifikasi
+
+Menampilkan header **WhatsApp Business (centang biru) · Status** pada balasan bot,
+sambil tetap mempertahankan tombol saluran dan `externalAdReply` milikmu.
+
+Klien WhatsApp selalu menggambar lencana terverifikasi untuk JID resmi
+`16505361212` dari daftar bawaan aplikasi, bukan dari pengecekan sertifikat ke
+server. Akun yang menjalankan bot tidak perlu terverifikasi.
+
+```js
+await sock.sendOfficialReply(jid, { text: 'Hasil HD IMAGE' }, {
+  name: 'REVIZA DELUXE',
+})
+```
+
+Digabung dengan tombol saluran dan gambar besar:
+
+```js
+import { withOfficialQuote } from '@revizahoshii/baileys'
+
+await sock.sendMessage(jid, withOfficialQuote(
+  { text: 'Hasil HD IMAGE' },
+  {
+    name: 'REVIZA DELUXE',
+    contextInfo: {
+      forwardedNewsletterMessageInfo: {
+        newsletterJid: '120363426118421279@newsletter',
+        newsletterName: 'Komunitas Reviza D Kink',
+        serverMessageId: 127,
+      },
+      externalAdReply: {
+        title: 'HD IMAGE',
+        body: 'Reply gambar yang mau dijernihkan',
+        sourceUrl: 'https://revizayowa.biz.id/',
+        mediaType: 1,
+        renderLargerThumbnail: true,
+      },
+    },
+  },
+))
+```
+
+Tombol **Lihat saluran** tetap mengarah ke salurannmu sendiri.
+
+| Opsi | Keterangan |
+|---|---|
+| `name` | Nama pada baris "Kontak:". Default `'WhatsApp'` |
+| `contact` | `true` (bawaan) tampil sebagai kartu kontak, `false` sebagai teks |
+| `text` | Teks kutipan bila `contact: false` |
+| `contextInfo` | `contextInfo` tambahan, mis. saluran dan `externalAdReply` |
+
 ### Pesan langsung tampil tanpa tombol Unduh
 
 Sejak versi `0.5.1`, pesan AI Rich otomatis menyertakan `messageSecret` sehingga

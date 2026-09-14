@@ -28,3 +28,16 @@ export declare const withVerifiedReply: <T extends Record<string, any>>(content:
 };
 export declare const createVerifiedQuote: (options?: VerifiedReplyOptions) => proto.IWebMessageInfo;
 export declare const bindVerifiedReply: <T extends Record<string, any>>(sock: T) => T;
+export declare const createOfficialQuote: (options?: {
+    name?: string;
+    text?: string;
+    contact?: boolean;
+    participant?: string;
+}) => proto.IWebMessageInfo;
+export declare const withOfficialQuote: <T extends Record<string, any>>(content: T, options?: {
+    name?: string;
+    text?: string;
+    contact?: boolean;
+    participant?: string;
+    contextInfo?: proto.IContextInfo;
+}) => T & { contextInfo: proto.IContextInfo };
