@@ -699,9 +699,9 @@ lisensinya mewajibkan pemberitahuan tersebut tetap disertakan.
 Menampilkan header **WhatsApp Business (centang biru) · Status** pada balasan bot,
 sambil tetap mempertahankan tombol saluran dan `externalAdReply` milikmu.
 
-Klien WhatsApp selalu menggambar lencana terverifikasi untuk JID resmi
-`16505361212` dari daftar bawaan aplikasi, bukan dari pengecekan sertifikat ke
-server. Akun yang menjalankan bot tidak perlu terverifikasi.
+Klien WhatsApp menggambar lencana terverifikasi untuk JID sistem `0@s.whatsapp.net`
+dari daftar bawaan aplikasi, bukan dari pengecekan sertifikat ke server. Akun yang
+menjalankan bot tidak perlu terverifikasi.
 
 ```js
 await sock.sendOfficialReply(jid, { text: 'Hasil HD IMAGE' }, {
@@ -709,15 +709,21 @@ await sock.sendOfficialReply(jid, { text: 'Hasil HD IMAGE' }, {
 })
 ```
 
-Digabung dengan tombol saluran dan gambar besar:
+#### Dengan gambar pada kutipan
+
+Isi `thumbnail` dengan Buffer gambar, misalnya foto profil pengguna yang menjalankan
+perintah. Tersedia `fetchProfileThumbnail` sebagai pembantu:
 
 ```js
-import { withOfficialQuote } from '@revizahoshii/baileys'
+import { fetchProfileThumbnail, withOfficialQuote } from '@revizahoshii/baileys'
+
+const foto = await fetchProfileThumbnail(sock, m.sender)
 
 await sock.sendMessage(jid, withOfficialQuote(
   { text: 'Hasil HD IMAGE' },
   {
     name: 'REVIZA DELUXE',
+    thumbnail: foto || gambarCadangan,
     contextInfo: {
       forwardedNewsletterMessageInfo: {
         newsletterJid: '120363426118421279@newsletter',
@@ -740,9 +746,11 @@ Tombol **Lihat saluran** tetap mengarah ke salurannmu sendiri.
 
 | Opsi | Keterangan |
 |---|---|
-| `name` | Nama pada baris "Kontak:". Default `'WhatsApp'` |
-| `contact` | `true` (bawaan) tampil sebagai kartu kontak, `false` sebagai teks |
-| `text` | Teks kutipan bila `contact: false` |
+| `name` | Nama/caption pada kutipan. Default `'WhatsApp'` |
+| `thumbnail` | Buffer gambar kutipan. Bila diisi, kutipan memakai `imageMessage` |
+| `contact` | `true` menampilkan kartu kontak. Catatan: WhatsApp tidak merender foto dari vcard |
+| `text` | Teks kutipan bila tanpa gambar dan tanpa kontak |
+| `participant` | JID pengirim kutipan. Default `0@s.whatsapp.net` |
 | `contextInfo` | `contextInfo` tambahan, mis. saluran dan `externalAdReply` |
 
 ### Pesan langsung tampil tanpa tombol Unduh

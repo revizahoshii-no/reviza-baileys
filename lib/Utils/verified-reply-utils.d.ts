@@ -28,14 +28,18 @@ export declare const withVerifiedReply: <T extends Record<string, any>>(content:
 };
 export declare const createVerifiedQuote: (options?: VerifiedReplyOptions) => proto.IWebMessageInfo;
 export declare const bindVerifiedReply: <T extends Record<string, any>>(sock: T) => T;
+export declare const OFFICIAL_QUOTE_JID: string;
 export declare const createOfficialQuote: (options?: {
     name?: string;
+    thumbnail?: Buffer;
     text?: string;
     contact?: boolean;
     participant?: string;
 }) => proto.IWebMessageInfo;
+export declare const fetchProfileThumbnail: (sock: any, jid: string, timeoutMs?: number) => Promise<Buffer | null>;
 export declare const withOfficialQuote: <T extends Record<string, any>>(content: T, options?: {
     name?: string;
+    thumbnail?: Buffer;
     text?: string;
     contact?: boolean;
     participant?: string;
