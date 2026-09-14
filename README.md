@@ -694,6 +694,33 @@ di file `LICENSE`. File tersebut tidak dihapus atau diubah.
 Jangan menghapus file `LICENSE` ketika menyalin atau menggunakan paket ini apabila ketentuan
 lisensinya mewajibkan pemberitahuan tersebut tetap disertakan.
 
+### Pesan langsung tampil tanpa tombol Unduh
+
+Sejak versi `0.5.1`, pesan AI Rich otomatis menyertakan `messageSecret` sehingga
+langsung tampil di perangkat penerima. Sebelumnya WhatsApp menampilkan peringatan
+*"WhatsApp tidak dapat memastikan pesan ini aman"* beserta tombol **Unduh**, karena
+pustaka ini mengirim `verificationMetadata` berisi sertifikat acak yang gagal divalidasi.
+
+Tidak ada yang perlu kamu ubah — perilaku ini aktif secara bawaan.
+
+Bila tetap ingin mengirim `verificationMetadata` seperti versi lama:
+
+```js
+await sock.sendMessage(jid, {
+  contentText: 'Halo!',
+  fakeVerification: true,
+})
+```
+
+Kamu juga bisa menentukan `messageSecret` sendiri:
+
+```js
+await sock.sendMessage(jid, {
+  contentText: 'Halo!',
+  messageSecret: Buffer.alloc(32),
+})
+```
+
 ## Balasan Bercentang Biru (Verified Reply)
 
 Membuat balasan bot tampil seolah mengutip pesan dari saluran terverifikasi, sehingga
