@@ -697,33 +697,37 @@ lisensinya mewajibkan pemberitahuan tersebut tetap disertakan.
 ### Kutipan bercentang biru tanpa akun terverifikasi
 
 Menampilkan header **WhatsApp Business (centang biru) · Status** pada balasan bot,
-sambil tetap mempertahankan tombol saluran dan `externalAdReply` milikmu.
+lengkap dengan foto pada avatar kutipan, sambil tetap mempertahankan tombol saluran
+dan `externalAdReply` milikmu.
 
-Klien WhatsApp menggambar lencana terverifikasi untuk JID sistem `0@s.whatsapp.net`
-dari daftar bawaan aplikasi, bukan dari pengecekan sertifikat ke server. Akun yang
-menjalankan bot tidak perlu terverifikasi.
+Dua hal yang bekerja terpisah:
+
+- **Lencana centang** berasal dari `participant`. Klien WhatsApp menggambar lencana
+  untuk JID sistem `0@s.whatsapp.net` dari daftar bawaan aplikasi, bukan dari
+  pengecekan sertifikat ke server. Akun yang menjalankan bot tidak perlu terverifikasi.
+- **Avatar bulat** berasal dari baris `TEL;waid=` di dalam vcard. WhatsApp menarik
+  foto profil nomor tersebut. Tanpa `waid`, avatar tampil abu-abu.
 
 ```js
 await sock.sendOfficialReply(jid, { text: 'Hasil HD IMAGE' }, {
   name: 'REVIZA DELUXE',
+  waid: m.sender,
 })
 ```
 
-#### Dengan gambar pada kutipan
+Isi `waid` dengan nomor pengguna yang menjalankan perintah agar avatarnya mengikuti
+foto profil mereka, atau satu nomor tetap agar avatarnya selalu sama.
 
-Isi `thumbnail` dengan Buffer gambar, misalnya foto profil pengguna yang menjalankan
-perintah. Tersedia `fetchProfileThumbnail` sebagai pembantu:
+#### Digabung dengan tombol saluran dan gambar besar
 
 ```js
-import { fetchProfileThumbnail, withOfficialQuote } from '@revizahoshii/baileys'
-
-const foto = await fetchProfileThumbnail(sock, m.sender)
+import { withOfficialQuote } from '@revizahoshii/baileys'
 
 await sock.sendMessage(jid, withOfficialQuote(
   { text: 'Hasil HD IMAGE' },
   {
     name: 'REVIZA DELUXE',
-    thumbnail: foto || gambarCadangan,
+    waid: m.sender,
     contextInfo: {
       forwardedNewsletterMessageInfo: {
         newsletterJid: '120363426118421279@newsletter',
@@ -746,11 +750,11 @@ Tombol **Lihat saluran** tetap mengarah ke salurannmu sendiri.
 
 | Opsi | Keterangan |
 |---|---|
-| `name` | Nama/caption pada kutipan. Default `'WhatsApp'` |
-| `thumbnail` | Buffer gambar kutipan. Bila diisi, kutipan memakai `imageMessage` |
-| `contact` | `true` menampilkan kartu kontak. Catatan: WhatsApp tidak merender foto dari vcard |
-| `text` | Teks kutipan bila tanpa gambar dan tanpa kontak |
-| `participant` | JID pengirim kutipan. Default `0@s.whatsapp.net` |
+| `name` | Nama yang tampil pada kutipan. Default `'WhatsApp'` |
+| `waid` | Nomor pemilik foto profil untuk avatar kutipan. Tanda plus dan spasi diabaikan |
+| `participant` | JID pengirim kutipan, penentu lencana. Default `0@s.whatsapp.net` |
+| `contact` | `true` (bawaan) kartu kontak, `false` teks biasa |
+| `thumbnail` | Buffer gambar. Bila diisi, kutipan memakai `imageMessage` dan `waid` diabaikan |
 | `contextInfo` | `contextInfo` tambahan, mis. saluran dan `externalAdReply` |
 
 ### Pesan langsung tampil tanpa tombol Unduh

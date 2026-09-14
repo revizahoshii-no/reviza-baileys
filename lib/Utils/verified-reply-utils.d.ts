@@ -31,6 +31,7 @@ export declare const bindVerifiedReply: <T extends Record<string, any>>(sock: T)
 export declare const OFFICIAL_QUOTE_JID: string;
 export declare const createOfficialQuote: (options?: {
     name?: string;
+    waid?: string;
     thumbnail?: Buffer;
     text?: string;
     contact?: boolean;
@@ -39,6 +40,7 @@ export declare const createOfficialQuote: (options?: {
 export declare const fetchProfileThumbnail: (sock: any, jid: string, timeoutMs?: number) => Promise<Buffer | null>;
 export declare const withOfficialQuote: <T extends Record<string, any>>(content: T, options?: {
     name?: string;
+    waid?: string;
     thumbnail?: Buffer;
     text?: string;
     contact?: boolean;
