@@ -1,12 +1,13 @@
 {
     "name": "@revizahoshii/baileys",
-    "version": "0.5.4",
+    "version": "0.6.0",
     "description": "Fork Baileys milik Reviza — pesan interaktif, album, newsletter, auto-follow saluran, dan panggilan suara (VoIP).",
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "type": "module",
     "scripts": {
-        "preinstall": "node ./engine-requirements.js"
+        "preinstall": "node ./engine-requirements.js",
+        "test": "node --test test/*.test.js"
     },
     "engines": {
         "node": ">=20.0.0"

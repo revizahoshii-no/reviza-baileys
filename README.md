@@ -25,6 +25,7 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 - [Menyimpan & Memulihkan Sesi](#menyimpan--memulihkan-sesi)
 - [Contoh Bot Lengkap](#contoh-bot-lengkap)
 - [Mengirim Pesan](#mengirim-pesan)
+- [Button V2, A2UI, dan Native Flow](#button-v2-a2ui-dan-native-flow)
 - [Menerima & Mengunduh Media](#menerima--mengunduh-media)
 - [Mengelola Grup](#mengelola-grup)
 - [Event yang Tersedia](#event-yang-tersedia)
@@ -363,6 +364,152 @@ await sock.sendMessage(nomor, {
 
 Bentuk yang salah ditolak dengan pesan jelas, bukan crash: `Invalid album type. Expected an array.`,
 `Minimum provide 2 media to upload album message`, `No "correctAnswer" provided for quiz`.
+
+## Button V2, A2UI, dan Native Flow
+
+Mulai versi **0.6.0**, builder yang dipakai pada alur interaktif Hoshino tersedia langsung dari
+entry point utama. Tidak perlu menyalin builder dari source bot atau mengimpor file internal:
+
+```js
+import { ButtonV2, A2UI } from "@revizahoshii/baileys";
+```
+
+Kedua builder menyediakan method berantai berikut:
+
+| Method | Fungsi |
+|---|---|
+| `setTitle`, `setSubtitle`, `setBody`, `setFooter` | Mengatur isi kartu |
+| `setContextInfo` | Mention, quoted stanza, forwarding, dan metadata konteks |
+| `addReply` / `addButton` | Tombol balasan cepat |
+| `addCopy` | Tombol salin kode |
+| `addUrl` | Tombol URL |
+| `addCall` | Tombol panggilan |
+| `addSelection` | Drawer daftar `single_select` |
+| `addRawButton` | Payload Button V2 mentah untuk kebutuhan lanjutan |
+| `build` | Membuat `WAMessage` tanpa mengirim |
+| `send` | Membuat dan me-relay pesan dengan node native-flow yang diperlukan |
+
+### Button V2
+
+```js
+import { ButtonV2 } from "@revizahoshii/baileys";
+
+await new ButtonV2(sock)
+  .setTitle("Hoshino AI")
+  .setSubtitle("Premium Flow")
+  .setBody("Pilih tindakan yang ingin dijalankan.")
+  .setFooter("Powered by Reviza")
+  .addReply("Buka Menu", ".menu")
+  .addCopy("Salin Kode", "REVIZA01")
+  .addUrl("Dokumentasi", "https://github.com/revizahoshii-no/reviza-baileys")
+  .addSelection("Pilih Fitur", [
+    {
+      title: "Menu Utama",
+      rows: [
+        { title: "Downloader", description: "Buka fitur unduhan", id: ".menu download" },
+        { title: "AI", description: "Buka fitur AI", id: ".menu ai" }
+      ]
+    }
+  ])
+  .send("6281234567890@s.whatsapp.net");
+```
+
+Thumbnail Button V2 memakai header lokasi agar kompatibel dengan bentuk yang digunakan Hoshino.
+Sumber dapat berupa `Buffer`, path lokal, atau URL HTTP/HTTPS. Berikan gambar JPEG 16:9 yang sudah
+dinormalisasi jika ingin hasil konsisten di semua klien:
+
+```js
+await new ButtonV2(sock)
+  .setTitle("Menu Media")
+  .setSubtitle("Pilih layanan")
+  .setBody("Daftar fitur tersedia di bawah.")
+  .setThumbnail("./assets/menu-300x169.jpg")
+  .addReply("Lanjut", ".menu")
+  .send(jid);
+```
+
+### A2UI (`im_a2ui`)
+
+```js
+import { A2UI } from "@revizahoshii/baileys";
+
+await new A2UI(sock)
+  .setTitle("Hoshino AI")
+  .setSubtitle("A2UI v0.9")
+  .setBody("Panel aksi menggunakan Bloks Widget dan native flow.")
+  .setFooter("Reviza")
+  .setA2uiImageUrl("https://example.com/header.jpg")
+  .setMessageParams({
+    bottom_sheet: {
+      in_thread_buttons_limit: 1,
+      divider_indices: [0],
+      list_title: "Daftar Aksi",
+      button_title: "Pilih"
+    }
+  })
+  .addReply("Status", ".status")
+  .addCopy("Salin ID", "REVIZA-A2UI")
+  .addSelection("Pilih Menu", [
+    {
+      title: "Kategori",
+      rows: [
+        { title: "AI", id: ".menu ai" },
+        { title: "Game", id: ".menu game" }
+      ]
+    }
+  ])
+  .send(jid);
+```
+
+`A2UI` membungkus `interactiveMessage` di dalam `viewOnceMessage`, mengisi `bloksWidget` dengan
+tipe `im_a2ui`, dan mengirim node `biz/native_flow` saat relay. Rendering A2UI bergantung pada versi
+klien WhatsApp; siapkan fallback teks pada aplikasi jika mendukung klien lama.
+
+### Hanya membangun payload
+
+Gunakan `build()` jika relay ingin ditangani sendiri:
+
+```js
+const builder = new ButtonV2(sock)
+  .setBody("Konfirmasi tindakan?")
+  .addReply("Ya", ".yes");
+
+const message = await builder.build(jid, { quoted });
+console.log(message.key.id);
+```
+
+### API paket yang dipakai bot JavaScript Hoshino
+
+Semua nama berikut dapat diimpor dari entry point utama `@revizahoshii/baileys`:
+
+```js
+import makeWASocket, {
+  A2UI,
+  ButtonV2,
+  DisconnectReason,
+  areJidsSameUser,
+  downloadContentFromMessage,
+  downloadMediaMessage,
+  fetchLatestRevizaBaileysVersion,
+  generateForwardMessageContent,
+  generateWAMessage,
+  generateWAMessageFromContent,
+  getBinaryNodeChild,
+  getContentType,
+  jidDecode,
+  jidNormalizedUser,
+  makeCacheableSignalKeyStore,
+  normalizeMessageContent,
+  prepareWAMessageMedia,
+  proto,
+  useMultiFileAuthState
+} from "@revizahoshii/baileys";
+```
+
+Generator pesan paket juga mendukung album, carousel, interactive/template, native-flow
+`single_select`, quiz newsletter, poll snapshot/update, payment invite, request payment, invoice,
+order, group status, spoiler, ephemeral, lottie sticker, view-once V2, verified reply, dan AI Rich.
+Untuk struktur tingkat rendah, gunakan `proto` bersama `generateWAMessageFromContent`.
 
 ## Menerima & Mengunduh Media
 
