@@ -767,27 +767,18 @@ Semua tautan di bawah ini diambil dari situs resmi Reviza: <https://revizayowa.b
 
 JID di atas berguna kalau Anda mengirim atau menjadwalkan konten ke saluran lewat `sock.sendMessage(jid, ...)`.
 
-### Auto-follow saluran
+### Mengikuti saluran lewat kode
 
-Saat koneksi berhasil terbuka (`connection === 'open'`), socket otomatis mengikuti dua saluran di atas
-lewat `newsletterFollow()`. Perilaku ini **hanya sekali per proses** — reconnect tidak mengirim ulang
-permintaan join. Hasilnya dicatat ke log pada level `info`, jadi bisa Anda lihat langsung:
-
-```
-{"level":30,...,"jid":"...@newsletter","msg":"sukses follow saluran Reviza"}
-{"level":30,...,"jid":"...@newsletter","alasan":409,"msg":"follow saluran Reviza dilewati"}
-```
-
-`alasan: 409` artinya sudah pernah ikut, `429`/`503` artinya sedang dibatasi sementara. Keduanya
-tidak menghentikan bot.
+Library ini **tidak mengikuti saluran apa pun secara otomatis**. Mengikuti saluran adalah
+keputusan pemilik akun, jadi jalankan langsung dari kode bot Anda sendiri (misal sekali saat
+`connection === 'open'`):
 
 ```js
-// matikan kalau tidak dipakai
-const sock = makeWASocket({ auth: state, autoFollowSaluran: false });
-
-// atau ganti daftarnya
-const sock2 = makeWASocket({ auth: state, autoFollowSaluran: ["1234...@newsletter"] });
+await sock.newsletterFollow('120363426118421279@newsletter');
 ```
+
+`409` artinya sudah pernah ikut, `429`/`503` artinya sedang dibatasi sementara — keduanya tidak
+menghentikan bot.
 
 ## Kepemilikan & Identitas Proyek
 
