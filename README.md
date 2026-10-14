@@ -1,110 +1,69 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/revizahoshii-no/reviza-baileys/main/banner.jpg" alt="Reviza Baileys" width="100%">
+  <img src="https://raw.githubusercontent.com/revizahoshii-no/reviza-baileys/main/banner.jpg" alt="zachannxd/baileys" width="100%">
 </p>
 
-<h1 align="center">Reviza Baileys</h1>
+# zachannxd/baileys
 
-<div align="center">
+Library WhatsApp Web multi-device untuk Node.js. Akarnya dari
+[Baileys](https://github.com/WhiskeySockets/Baileys), lalu saya poles sendiri sampai cocok
+dipakai bot- saya: tombol interaktif, album, kutipan centang biru, panggilan suara, dan
+lain-lain. Kalau kamu pernah pakai Baileys, kamu sudah familiar — bedanya di sini ada
+banyak tambahan yang tidak ada di upstream.
 
-Pustaka WhatsApp berbasis WebSockets untuk kebutuhan bot dan aplikasi **Reviza**.
-
-Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebutuhan Reviza.
-
-</div>
-
----
-
-## Daftar Isi
-
-- [Nama Paket](#nama-paket)
-- [Prasyarat](#prasyarat)
-- [Instalasi](#instalasi)
-- [Cara Menghubungkan Akun](#cara-menghubungkan-akun)
-  - [Lewat QR Code](#lewat-qr-code)
-  - [Lewat Pairing Code](#lewat-pairing-code)
-- [Menyimpan & Memulihkan Sesi](#menyimpan--memulihkan-sesi)
-- [Contoh Bot Lengkap](#contoh-bot-lengkap)
-- [Mengirim Pesan](#mengirim-pesan)
-- [Button V2, A2UI, dan Native Flow](#button-v2-a2ui-dan-native-flow)
-- [Menerima & Mengunduh Media](#menerima--mengunduh-media)
-- [Mengelola Grup](#mengelola-grup)
-- [Event yang Tersedia](#event-yang-tersedia)
-- [Fungsi Utilitas](#fungsi-utilitas)
-- [Format ID WhatsApp (JID)](#format-id-whatsapp-jid)
-- [Panggilan Suara (VoIP)](#panggilan-suara-voip)
-- [Kontak & Channel Reviza](#kontak--channel-reviza)
-- [Kepemilikan & Identitas Proyek](#kepemilikan--identitas-proyek)
-- [Lisensi](#lisensi)
-- [Kredit & Terima Kasih](#kredit--terima-kasih)
-
-## Nama Paket
-
-`@revizahoshii/baileys`
-
-## Prasyarat
-
-| Kebutuhan | Keterangan |
-|---|---|
-| **Node.js 20 atau lebih baru** | **Wajib.** Saat `npm install`, ada script `preinstall` (`engine-requirements.js`) yang akan **menghentikan instalasi** jika versi Node Anda di bawah 20. |
-| **ESM** | Paket ini `"type": "module"`. Kalau project Anda CommonJS, pakai `import()` dinamis (lihat di bawah). |
-| **`pino`** | Untuk logger. Sudah ikut terpasang sebagai dependency. |
+- **Paket:** `@zachannxd/baileys`
+- **Versi:** 0.6.0
+- **Rumah kode:** https://github.com/revizahoshii-no/reviza-baileys
+- **Lisensi:** MIT
 
 ## Instalasi
 
-Langsung dari repository GitHub ini (**satu-satunya sumber yang berlaku** —
-paket `@revizahoshii/*` di registry npm sudah dihapus oleh tim keamanan npm dan
-diganti placeholder, jangan install dari registry):
+```bash
+npm install @zachannxd/baileys
+```
+
+Atau langsung dari GitHub:
 
 ```bash
 npm install github:revizahoshii-no/reviza-baileys
 ```
 
-Lalu impor di kode Anda:
+> Nama lama `@revizahoshii/baileys` sudah dihapus tim keamanan npm dan diganti
+> placeholder `0.0.1-security`. Jangan install dari nama lama.
+
+Kebutuhan dasarnya cuma satu: **Node.js 20 ke atas**. Ada script `preinstall` yang
+menghentikan instalasi kalau versi Node kamu di bawah itu. Paket ini ESM
+(`"type": "module"`), jadi kalau project kamu masih CommonJS, pakai
+`const { default: makeWASocket } = await import("@zachannxd/baileys")`.
 
 ```js
-import makeWASocket from "@revizahoshii/baileys";
+import makeWASocket from "@zachannxd/baileys";
 ```
 
-Di project CommonJS (`require`):
+## Menghubungkan akun
+
+Ada dua cara: QR code atau pairing code. Dua-duanya membuat library ini masuk sebagai
+*perangkat tertaut*, seperti WhatsApp Web.
+
+### QR code
+
+QR datang lewat event `connection.update`. Opsi `printQRInTerminal` sudah tidak
+mencetak apa-apa, jadi ambil QR-nya dari event:
 
 ```js
-async function main() {
-  const { default: makeWASocket } = await import("@revizahoshii/baileys");
-  // ... lanjutkan di sini
-}
-main();
-```
-
-## Cara Menghubungkan Akun
-
-WhatsApp menyediakan API multi-device yang membuat paket ini bisa autentikasi sebagai
-perangkat WhatsApp kedua — pindai **QR code** atau pakai **pairing code** dari HP.
-
-### Lewat QR Code
-
-> [!IMPORTANT]
-> Kode QR dikirim lewat event `connection.update` sebagai properti `qr` — ambil dari situ,
-> jangan mengandalkan opsi `printQRInTerminal` (sudah deprecated, tidak mencetak QR).
-
-```js
-import makeWASocket, { Browsers } from "@revizahoshii/baileys";
+import makeWASocket, { Browsers } from "@zachannxd/baileys";
 
 const sock = makeWASocket({
     browser: Browsers.ubuntu("Reviza App")
 });
 
 sock.ev.on("connection.update", ({ qr }) => {
-    if (qr) console.log("Scan kode QR ini dengan WhatsApp Anda:\n", qr);
+    if (qr) console.log("Scan QR ini:\n", qr);
 });
 ```
 
-Pindai lewat **WhatsApp → Perangkat Tertaut → Tautkan Perangkat**, dan Anda langsung masuk.
+Scan lewat **WhatsApp → Perangkat Tertaut → Tautkan Perangkat**. Mau QR-nya jadi
+gambar di terminal? Pasang `qrcode-terminal`, lalu:
 
-Mau QR yang bisa dibaca mata (bukan string teks) di terminal? Tambahkan dependency kecil:
-
-```bash
-npm install qrcode-terminal
-```
 ```js
 import qrcode from "qrcode-terminal";
 
@@ -113,60 +72,50 @@ sock.ev.on("connection.update", ({ qr }) => {
 });
 ```
 
-### Lewat Pairing Code
+### Pairing code
 
-Pairing code dipakai kalau tidak bisa memindai QR (misalnya di server/VPS).
-Nomor **tanpa** `+`, `()`, atau `-` — awali dengan kode negara. Untuk Indonesia pakai `62`.
+Lebih pas kalau bot jalan di VPS dan kamu tidak bisa scan. Nomor ditulis tanpa `+`,
+`()`, atau `-`, diawali kode negara (Indonesia: `62`):
 
 ```js
-import makeWASocket from "@revizahoshii/baileys";
-
 const sock = makeWASocket({});
 
 if (!sock.authState.creds.registered) {
-    const nomor = "6281234567890";
-    const kode = await sock.requestPairingCode(nomor);
+    const kode = await sock.requestPairingCode("6281234567890");
     console.log("Masukkan kode ini di WhatsApp:", kode);
 }
 ```
 
-Anda juga bisa menentukan kode sendiri, dengan syarat **panjangnya harus pas 8 karakter**:
+Kamu juga bisa menentukan kode sendiri — asal **pas 8 karakter**, tidak lebih tidak
+kurang:
 
 ```js
 const kode = await sock.requestPairingCode("6281234567890", "REVIZA01");
 ```
 
-Kalau panjangnya bukan 8, akan error: `Custom pairing code must be exactly 8 chars`.
+## Menyimpan sesi
 
-## Menyimpan & Memulihkan Sesi
-
-Supaya tidak perlu memindai QR berulang kali, simpan kredensial ke folder:
+Tanpa ini, kamu scan QR/pairing ulang setiap restart. Simpan kredensialnya ke folder:
 
 ```js
-import makeWASocket, { useMultiFileAuthState } from "@revizahoshii/baileys";
+import makeWASocket, { useMultiFileAuthState } from "@zachannxd/baileys";
 
 const { state, saveCreds } = await useMultiFileAuthState("auth_info_reviza");
 
 const sock = makeWASocket({
-    auth: state         // perhatikan: namanya `auth`, bukan `authState`
+    auth: state    // namanya `auth`, bukan `authState`
 });
 
-// dipanggil setiap kali kredensial diperbarui
 sock.ev.on("creds.update", saveCreds);
 ```
 
-> [!WARNING]
-> Folder `auth_info_reviza` berisi **kunci sesi** akun WhatsApp Anda. Siapa pun yang memegang
-> folder itu bisa mengambil alih sesi. **Jangan pernah** commit ke Git — tambahkan ke `.gitignore`:
->
-> ```gitignore
-> auth_info_reviza/
-> ```
+Folder itu berisi **kunci sesi akun WhatsApp kamu** — siapa pun yang pegang foldernya
+bisa ambil alih akun. Jangan pernah commit ke Git; masukkan ke `.gitignore`.
 
-Agar sesi makin awet dan tidak sering diminta pairing ulang, bungkus key store dengan cache:
+Supaya sesi lebih awet, bungkus key store-nya dengan cache:
 
 ```js
-import makeWASocket, { useMultiFileAuthState, makeCacheableSignalKeyStore } from "@revizahoshii/baileys";
+import makeWASocket, { useMultiFileAuthState, makeCacheableSignalKeyStore } from "@zachannxd/baileys";
 import pino from "pino";
 
 const logger = pino({ level: "silent" });
@@ -183,43 +132,39 @@ const sock = makeWASocket({
 sock.ev.on("creds.update", saveCreds);
 ```
 
-## Contoh Bot Lengkap
+## Bot pertama dalam satu file
 
-Ini pola dasar yang paling umum dipakai: tangkap pesan masuk, balas, tangani koneksi putus.
+Pola paling umum: tangkap pesan, balas, dan sambung ulang kalau putus.
 
 ```js
-import makeWASocket, { DisconnectReason, useMultiFileAuthState } from "@revizahoshii/baileys";
+import makeWASocket, { DisconnectReason, useMultiFileAuthState } from "@zachannxd/baileys";
 import { Boom } from "@hapi/boom";
 
 async function jalankanBot() {
     const { state, saveCreds } = await useMultiFileAuthState("auth_info_reviza");
 
-    const sock = makeWASocket({
-        auth: state
-    });
+    const sock = makeWASocket({ auth: state });
 
     sock.ev.on("connection.update", (update) => {
         const { connection, lastDisconnect, qr } = update;
 
-        if (qr) console.log("Scan kode QR ini:", qr);
+        if (qr) console.log("Scan QR ini:", qr);
 
         if (connection === "close") {
             const logout = lastDisconnect?.error
-                ? new Boom(lastDisconnect.error)?.output?.statusCode === DisconnectReason.loggedOut
+                ? new Boom(lastDisconnect?.error)?.output?.statusCode === DisconnectReason.loggedOut
                 : false;
 
             console.log("Koneksi tertutup:", lastDisconnect?.error);
-            // sambungkan lagi, kecuali Anda memang logout secara sadar
-            if (!logout) jalankanBot();
+            if (!logout) jalankanBot();   // sambung lagi, kecuali memang logout sadar
         } else if (connection === "open") {
             console.log("Bot aktif!");
         }
     });
 
     sock.ev.on("messages.upsert", async ({ messages }) => {
-        // selalu pakai loop: messages adalah array
-        for (const m of messages) {
-            if (m.key.fromMe) continue;                 // lewati pesan dari bot sendiri
+        for (const m of messages) {              // selalu loop: messages itu array
+            if (m.key.fromMe) continue;
             if (m.message?.protocolMessage) continue;   // lewati edit/hapus pesan
 
             const teks = m.message?.conversation
@@ -227,7 +172,7 @@ async function jalankanBot() {
                 || "";
 
             console.log(`Pesan dari ${m.key.remoteJid}:`, teks);
-            await sock.sendMessage(m.key.remoteJid, { text: "Halo dari Reviza Baileys!" });
+            await sock.sendMessage(m.key.remoteJid, { text: "Halo!" });
         }
     });
 
@@ -237,63 +182,39 @@ async function jalankanBot() {
 jalankanBot();
 ```
 
-## Mengirim Pesan
+## Mengirim pesan
 
-Semua jenis pesan dikirim lewat satu fungsi: `sock.sendMessage(jid, konten, opsi)`.
-
-**Teks**
+Semua lewat satu fungsi: `sock.sendMessage(jid, konten, opsi)`.
 
 ```js
+// teks
 await sock.sendMessage(nomor, { text: "halo apa kabar" });
-```
 
-**Balas dengan quote**
-
-```js
+// balas dengan quote
 await sock.sendMessage(nomor, { text: "oke siap" }, { quoted: pesanMasuk });
-```
 
-**Sebut (mention) pengguna**
-
-```js
+// mention
 await sock.sendMessage(nomor, {
     text: "halo @6281234567890 👋",
     mentions: ["6281234567890@s.whatsapp.net"]
 });
-```
 
-**Gambar**
+// gambar: dari file atau Buffer
+await sock.sendMessage(nomor, { image: { url: "./foto.jpg" }, caption: "caption" });
+await sock.sendMessage(nomor, { image: buffer, caption: "dari memori" });
 
-```js
-// dari file
-await sock.sendMessage(nomor, { image: { url: "./foto.jpg" }, caption: "caption di sini" });
-
-// dari Buffer hasil unduhan
-await sock.sendMessage(nomor, { image: buffer, caption: "langsung dari memori" });
-```
-
-**Video, audio, dokumen, sticker, GIF**
-
-```js
-await sock.sendMessage(nomor, { video: { url: "./klip.mp4" }, caption: "video", gifPlayback: false });
-await sock.sendMessage(nomor, { audio: { url: "./suara.mp3" }, ptt: true });   // ptt: true = voice note
-await sock.sendMessage(nomor, { document: { url: "./kata-kata.pdf" }, fileName: "kata-kata.pdf" });
+// video, audio (ptt = voice note), dokumen, sticker, gif
+await sock.sendMessage(nomor, { video: { url: "./klip.mp4" }, caption: "video" });
+await sock.sendMessage(nomor, { audio: { url: "./suara.mp3" }, ptt: true });
+await sock.sendMessage(nomor, { document: { url: "./laporan.pdf" }, fileName: "laporan.pdf" });
 await sock.sendMessage(nomor, { sticker: "./stiker.webp" });
 await sock.sendMessage(nomor, { video: { url: "./loop.mp4" }, gifPlayback: true });
-```
 
-**View Once**
-
-```js
+// sekali lihat
 await sock.sendMessage(nomor, { image: { url: "./rahasia.jpg" }, viewOnce: true });
-```
 
-**Lokasi & Kontak**
-
-```js
-await sock.sendMessage(nomor, {
-    location: { degreesLatitude: -3.5952, degreesLongitude: 97.6571 }  // Medan
-});
+// lokasi & kontak
+await sock.sendMessage(nomor, { location: { degreesLatitude: -3.5952, degreesLongitude: 97.6571 } });
 
 const vcard =
     "BEGIN:VCARD\n" +
@@ -302,16 +223,11 @@ const vcard =
     "TEL;type=CELL;type=VOICE;waid=6281234567890:+62 812-3456-7890\n" +
     "END:VCARD";
 
-await sock.sendMessage(nomor, {
-    contacts: { displayName: "Reviza", contacts: [{ vcard }] }
-});
-```
+await sock.sendMessage(nomor, { contacts: { displayName: "Reviza", contacts: [{ vcard }] } });
 
-**Reaksi, Poll, dan Maju (forward)**
-
-```js
+// reaksi, poll, forward
 await sock.sendMessage(nomor, { react: { text: "🔥", key: pesanMasuk.key } });
-await sock.sendMessage(nomor, { react: { text: "", key: pesanMasuk.key } });  // string kosong = hapus reaksi
+await sock.sendMessage(nomor, { react: { text: "", key: pesanMasuk.key } });   // "" = hapus reaksi
 
 await sock.sendMessage(nomor, {
     poll: { name: "Makan siang?", values: ["Nasi padang", "Soto", "Gado-gado"], selectableCount: 1 }
@@ -320,81 +236,58 @@ await sock.sendMessage(nomor, {
 await sock.sendMessage(nomor, { forward: pesanMasuk });
 ```
 
-> [!TIP]
-> Supaya tautan ikut menampilkan *preview*, pasang dependency opsionalnya:
->
-> ```bash
-> npm install link-preview-js
-> ```
->
-> Opsi `generateHighQualityLinkPreview` sudah aktif secara default, jadi
-> tidak perlu di-set ulang — cukup kirim teks yang berisi URL:
->
-> ```js
-> await sock.sendMessage(nomor, { text: "lihat: https://example.com" });
-> ```
+Preview tautan sudah aktif default. Kalau mau preview-nya lebih tajam, pasang
+dependency opsional `link-preview-js`, tidak perlu set apa-apa lagi.
 
-### Bentuk pesan khas Reviza
+### Bentuk pesan khas fork ini
 
-Tiga fitur tambahan di paket ini memakai bentuk payload sendiri — sudah diuji terhadap kode
-yang ter-publish, jadi ikuti persis seperti ini:
+Tiga jenis pesan di bawah punya bentuk sendiri dan sudah diuji — ikuti persis:
 
 ```js
-// album: array di tingkat atas, minimal 2 gambar/video (bukan { album: { messages: [...] } })
+// album: array di tingkat atas, minimal 2 media
 await sock.sendMessage(nomor, {
     caption: "liburan",
     album: [{ image: { url: "./a.jpg" } }, { video: { url: "./b.mp4" } }]
 });
 
-// quiz: lewat `poll` dengan `pollType: 1` + `correctAnswer` (bukan key `quiz`)
+// quiz: lewat `poll` dengan pollType 1 + correctAnswer
 await sock.sendMessage(nomor, {
     poll: { name: "Kuis", values: ["Ai", "Ruby"], selectableCount: 1, pollType: 1, correctAnswer: "Ai" }
 });
 
-// list: `sections` di tingkat atas (bukan { list: { sections: [...] } })
+// list: sections di tingkat atas
 await sock.sendMessage(nomor, {
     text: "Pilih menu", buttonText: "Menu", title: "Reviza Bot", footer: "ketuk di bawah",
     sections: [{ title: "Utama", rows: [{ rowId: "1", title: "Cek saldo" }] }]
 });
 ```
 
-Bentuk yang salah ditolak dengan pesan jelas, bukan crash: `Invalid album type. Expected an array.`,
-`Minimum provide 2 media to upload album message`, `No "correctAnswer" provided for quiz`.
+Kalau bentuknya salah, library menolak dengan pesan yang jelas (misalnya
+`Minimum provide 2 media to upload album message`), bukan malah crash diam-diam.
 
-## Button V2, A2UI, dan Native Flow
+## Button V2 dan A2UI
 
-Mulai versi **0.6.0**, builder yang dipakai pada alur interaktif Hoshino tersedia langsung dari
-entry point utama. Tidak perlu menyalin builder dari source bot atau mengimpor file internal:
+Sejak 0.6.0, `ButtonV2` dan `A2UI` bisa diimpor langsung dari entry point utama —
+tidak perlu nyolong builder dari source bot:
 
 ```js
-import { ButtonV2, A2UI } from "@revizahoshii/baileys";
+import { ButtonV2, A2UI } from "@zachannxd/baileys";
 ```
 
-Kedua builder menyediakan method berantai berikut:
-
-| Method | Fungsi |
-|---|---|
-| `setTitle`, `setSubtitle`, `setBody`, `setFooter` | Mengatur isi kartu |
-| `setContextInfo` | Mention, quoted stanza, forwarding, dan metadata konteks |
-| `addReply` / `addButton` | Tombol balasan cepat |
-| `addCopy` | Tombol salin kode |
-| `addUrl` | Tombol URL |
-| `addCall` | Tombol panggilan |
-| `addSelection` | Drawer daftar `single_select` |
-| `addRawButton` | Payload Button V2 mentah untuk kebutuhan lanjutan |
-| `build` | Membuat `WAMessage` tanpa mengirim |
-| `send` | Membuat dan me-relay pesan dengan node native-flow yang diperlukan |
-
-### Button V2
+Keduanya pakai method berantai: `setTitle`, `setSubtitle`, `setBody`, `setFooter`,
+`setContextInfo` (mention, quote, forwarding), `addReply`/`addButton`,
+`addCopy`, `addUrl`, `addCall`, `addSelection` (drawer `single_select`),
+`addRawButton` (payload mentah), `setThumbnail` (khusus ButtonV2),
+`setA2uiImageUrl` + `setMessageParams` (khusus A2UI), lalu `send(jid)` untuk
+kirim atau `build(jid)` kalau mau relay sendiri.
 
 ```js
-import { ButtonV2 } from "@revizahoshii/baileys";
-
 await new ButtonV2(sock)
   .setTitle("Hoshino AI")
   .setSubtitle("Premium Flow")
   .setBody("Pilih tindakan yang ingin dijalankan.")
   .setFooter("Powered by Reviza")
+  .setThumbnail("./assets/menu.jpg")   // Buffer, path lokal, atau URL
   .addReply("Buka Menu", ".menu")
   .addCopy("Salin Kode", "REVIZA01")
   .addUrl("Dokumentasi", "https://github.com/revizahoshii-no/reviza-baileys")
@@ -410,25 +303,10 @@ await new ButtonV2(sock)
   .send("6281234567890@s.whatsapp.net");
 ```
 
-Thumbnail Button V2 memakai header lokasi agar kompatibel dengan bentuk yang digunakan Hoshino.
-Sumber dapat berupa `Buffer`, path lokal, atau URL HTTP/HTTPS. Berikan gambar JPEG 16:9 yang sudah
-dinormalisasi jika ingin hasil konsisten di semua klien:
+A2UI sama persis polanya, bedanya dikirim sebagai `im_a2ui` di dalam
+`viewOnceMessage` plus node `biz/native_flow`:
 
 ```js
-await new ButtonV2(sock)
-  .setTitle("Menu Media")
-  .setSubtitle("Pilih layanan")
-  .setBody("Daftar fitur tersedia di bawah.")
-  .setThumbnail("./assets/menu-300x169.jpg")
-  .addReply("Lanjut", ".menu")
-  .send(jid);
-```
-
-### A2UI (`im_a2ui`)
-
-```js
-import { A2UI } from "@revizahoshii/baileys";
-
 await new A2UI(sock)
   .setTitle("Hoshino AI")
   .setSubtitle("A2UI v0.9")
@@ -444,73 +322,137 @@ await new A2UI(sock)
     }
   })
   .addReply("Status", ".status")
-  .addCopy("Salin ID", "REVIZA-A2UI")
   .addSelection("Pilih Menu", [
-    {
-      title: "Kategori",
-      rows: [
-        { title: "AI", id: ".menu ai" },
-        { title: "Game", id: ".menu game" }
-      ]
-    }
+    { title: "Kategori", rows: [{ title: "AI", id: ".menu ai" }, { title: "Game", id: ".menu game" }] }
   ])
   .send(jid);
 ```
 
-`A2UI` membungkus `interactiveMessage` di dalam `viewOnceMessage`, mengisi `bloksWidget` dengan
-tipe `im_a2ui`, dan mengirim node `biz/native_flow` saat relay. Rendering A2UI bergantung pada versi
-klien WhatsApp; siapkan fallback teks pada aplikasi jika mendukung klien lama.
+Catatan: rendering A2UI tergantung versi aplikasi WhatsApp penerima, jadi siapkan
+fallback teks kalau targetmu masih pakai klien lama.
 
-### Hanya membangun payload
-
-Gunakan `build()` jika relay ingin ditangani sendiri:
-
-```js
-const builder = new ButtonV2(sock)
-  .setBody("Konfirmasi tindakan?")
-  .addReply("Ya", ".yes");
-
-const message = await builder.build(jid, { quoted });
-console.log(message.key.id);
-```
-
-### API paket yang dipakai bot JavaScript Hoshino
-
-Semua nama berikut dapat diimpor dari entry point utama `@revizahoshii/baileys`:
+Impor lain yang paling sering dipakai bot:
 
 ```js
 import makeWASocket, {
-  A2UI,
-  ButtonV2,
-  DisconnectReason,
-  areJidsSameUser,
-  downloadContentFromMessage,
-  downloadMediaMessage,
-  fetchLatestRevizaBaileysVersion,
-  generateForwardMessageContent,
-  generateWAMessage,
-  generateWAMessageFromContent,
-  getBinaryNodeChild,
-  getContentType,
-  jidDecode,
-  jidNormalizedUser,
-  makeCacheableSignalKeyStore,
-  normalizeMessageContent,
-  prepareWAMessageMedia,
-  proto,
-  useMultiFileAuthState
-} from "@revizahoshii/baileys";
+  A2UI, ButtonV2, DisconnectReason,
+  areJidsSameUser, downloadContentFromMessage, downloadMediaMessage,
+  fetchLatestRevizaBaileysVersion, generateForwardMessageContent,
+  generateWAMessage, generateWAMessageFromContent,
+  getBinaryNodeChild, getContentType, jidDecode, jidNormalizedUser,
+  makeCacheableSignalKeyStore, normalizeMessageContent, prepareWAMessageMedia,
+  proto, useMultiFileAuthState
+} from "@zachannxd/baileys";
 ```
 
-Generator pesan paket juga mendukung album, carousel, interactive/template, native-flow
-`single_select`, quiz newsletter, poll snapshot/update, payment invite, request payment, invoice,
-order, group status, spoiler, ephemeral, lottie sticker, view-once V2, verified reply, dan AI Rich.
-Untuk struktur tingkat rendah, gunakan `proto` bersama `generateWAMessageFromContent`.
+## Kutipan centang biru
 
-## Menerima & Mengunduh Media
+Balasan bot bisa tampil seperti mengutip pesan dari akun/saluran terverifikasi —
+ada lencana centang birunya, plus foto di avatar kutipan. Cara kerjanya dua hal
+terpisah:
+
+- **Lencana centang** datang dari `participant`. Klien WhatsApp menggambar lencana
+  untuk JID sistem `0@s.whatsapp.net` dari daftar bawaan aplikasinya — bukan hasil
+  cek sertifikat ke server, jadi akun bot kamu tidak perlu terverifikasi.
+- **Avatar bulat** datang dari baris `TEL;waid=` di vcard. WhatsApp mengambil foto
+  profil nomor itu. Tanpa `waid`, avatar-nya abu-abu.
+
+Cara pakai paling cepat — helper ini sudah nempel di socket:
 
 ```js
-import { downloadMediaMessage } from "@revizahoshii/baileys";
+await sock.sendOfficialReply(jid, { text: "Hasil HD IMAGE" }, {
+  name: "REVIZA DELUXE",
+  waid: m.sender,   // isi nomor apa pun; ini penentu avatar
+});
+```
+
+Isi `waid` dengan nomor pengirim perintah kalau mau avatarnya ikut foto profil
+mereka, atau satu nomor tetap biar selalu sama.
+
+Digabung dengan tombol saluran dan thumbnail besar:
+
+```js
+import { withOfficialQuote } from "@zachannxd/baileys";
+
+await sock.sendMessage(jid, withOfficialQuote(
+  { text: "Hasil HD IMAGE" },
+  {
+    name: "REVIZA DELUXE",
+    waid: m.sender,
+    contextInfo: {
+      forwardedNewsletterMessageInfo: {
+        newsletterJid: "120363426118421279@newsletter",
+        newsletterName: "Komunitas Reviza D Kink",
+        serverMessageId: 127,
+      },
+      externalAdReply: {
+        title: "HD IMAGE",
+        body: "Reply gambar yang mau dijernihkan",
+        sourceUrl: "https://revizayowa.biz.id/",
+        mediaType: 1,
+        renderLargerThumbnail: true,
+      },
+    },
+  },
+));
+```
+
+Opsi `sendOfficialReply` / `withOfficialQuote`:
+
+- `name` — nama yang tampil di kutipan (default `WhatsApp`)
+- `waid` — nomor pemilik foto profil untuk avatar (plus dan spasi diabaikan)
+- `participant` — JID pengirim kutipan, penentu lencana (default `0@s.whatsapp.net`)
+- `contact` — `true` (bawaan) kartu kontak, `false` teks biasa
+- `thumbnail` — Buffer gambar; kalau diisi, kutipan jadi `imageMessage` dan `waid` diabaikan
+- `contextInfo` — tambahan apa pun (saluran, `externalAdReply`, dan seterusnya)
+
+### Verified reply (preset saluran)
+
+Keluarga fungsi satu tujuan yang sama — membuat kutipan berasal dari saluran:
+
+```js
+// preset bawaan: 'whatsapp' atau 'meta'
+await sock.sendVerifiedReply(jid, { text: "Halo!" }, { preset: "whatsapp" });
+
+// saluran sendiri
+await sock.sendVerifiedReply(jid, { text: "Halo!" }, {
+  name: "Reviza Official",
+  jid: "120363420054181921@newsletter",
+  text: "Pesan dari saluran resmi",
+});
+
+// bungkus jenis pesan apa pun
+import { withVerifiedReply, createVerifiedQuote, buildVerifiedContextInfo } from "@zachannxd/baileys";
+await sock.sendMessage(jid, withVerifiedReply({ image: { url: "./gambar.jpg" } }, { preset: "meta" }));
+
+// atau jadi objek quoted biasa
+await sock.sendMessage(jid, { text: "Halo" }, {
+  quoted: createVerifiedQuote({ preset: "whatsapp", text: "Pemberitahuan resmi" }),
+});
+```
+
+Opsi lengkapnya: `preset`, `name`, `jid` (harus `...@newsletter`), `text`,
+`participant`, `serverMessageId` (diacak kalau kosong), `contentType`
+(`VerifiedContentType`: `UPDATE`, `UPDATE_CARD`, `LINK_CARD`), `quotedMessage`
+(menimpa `text`), dan `contextInfo`. `bindVerifiedReply(sock)` juga ada, tapi
+sudah otomatis terpasang.
+
+> Fitur ini cuma mengubah tampilan kutipan di layar penerima. Tidak memberi
+> verifikasi resmi apa pun ke akunmu — pakai dengan bijak.
+
+### Pesan AI Rich tanpa tombol Unduh
+
+Sejak 0.5.1 pesan AI Rich otomatis menyertakan `messageSecret` sehingga langsung
+tampil di perangkat penerima. Sebelumnya WhatsApp menampilkan peringatan
+*"WhatsApp tidak dapat memastikan pesan ini aman"* plus tombol **Unduh**, karena
+library mengirim `verificationMetadata` berisi sertifikat acak yang gagal
+divalidasi. Tidak ada yang perlu kamu ubah — kalau mau perilaku lama, kirim
+`fakeVerification: true`, atau tentukan `messageSecret` sendiri (Buffer 32 byte).
+
+## Menerima dan mengunduh media
+
+```js
+import { downloadMediaMessage } from "@zachannxd/baileys";
 import fs from "node:fs";
 
 sock.ev.on("messages.upsert", async ({ messages }) => {
@@ -527,155 +469,95 @@ sock.ev.on("messages.upsert", async ({ messages }) => {
             reuploadRequest: sock.updateMediaMessage
         });
 
-        fs.writeFileSync(`unduhan_${m.message.imageMessage ? "foto.jpg" : "media"}`, buffer);
+        fs.writeFileSync("./unduhan", buffer);
     }
 });
 ```
 
-Butuh alurnya terpisah (unduh manual per konten)? Tersedia juga `downloadContentFromMessage`.
+Butuh kontrol per bagian (streaming)? Pakai `downloadContentFromMessage`.
 
-## Mengelola Grup
+## Grup
 
 ```js
-// buat grup (array nomor)
+// buat grup
 const { id: jidGrup } = await sock.groupCreate("Ruang Reviza", [
     "6281234567890@s.whatsapp.net",
     "6281234567891@s.whatsapp.net"
 ]);
 
-// info grup: nama, deskripsi, peserta
+// info grup
 const meta = await sock.groupMetadata(jidGrup);
 console.log(meta.subject, "| peserta:", meta.participants.length);
 
-// tambah / keluarkan / naikkan-turunkan admin
+// tambah / keluarkan / promote / demote
 await sock.groupParticipantsUpdate(jidGrup, ["6281234567892@s.whatsapp.net"], "add");
 await sock.groupParticipantsUpdate(jidGrup, ["6281234567892@s.whatsapp.net"], "remove");
 await sock.groupParticipantsUpdate(jidGrup, ["6281234567892@s.whatsapp.net"], "promote");
 await sock.groupParticipantsUpdate(jidGrup, ["6281234567892@s.whatsapp.net"], "demote");
 
-// ubah nama & deskripsi
+// nama, deskripsi, kunci grup, pesan sementara
 await sock.groupUpdateSubject(jidGrup, "Nama Baru");
 await sock.groupUpdateDescription(jidGrup, "Deskripsi grup");
-
-// kunci grup (hanya admin yang bisa kirim)
-await sock.groupSettingUpdate(jidGrup, "announcement");
-await sock.groupSettingUpdate(jidGrup, "not_announcement");  // buka lagi
-
-// pesan sementara (auto-delete)
-await sock.groupToggleEphemeral(jidGrup, 7 * 24 * 3600);  // detik
+await sock.groupSettingUpdate(jidGrup, "announcement");        // hanya admin bisa kirim
+await sock.groupSettingUpdate(jidGrup, "not_announcement");    // buka lagi
+await sock.groupToggleEphemeral(jidGrup, 7 * 24 * 3600);       // auto-delete 7 hari
 ```
 
-## Event yang Tersedia
+## Event
 
-Paket ini memakai gaya `EventEmitter`, jadi tinggal `sock.ev.on(...)`:
+Semua lewat `sock.ev.on(...)`. Yang paling sering dipakai:
 
-| Event | Kapan terjadi |
-|---|---|
-| `connection.update` | Status koneksi berubah (`open`, `close`, QR menunggu) |
-| `messages.upsert` | Ada pesan baru |
-| `messages.update` | Pesan berubah (dibaca, diedit, dihapus, vote poll) |
-| `messaging-history.set` | Riwayat chat terkirim saat pertama kali sinkron |
-| `chats.upsert` / `chats.update` / `chats.delete` | Data chat berubah |
-| `contacts.upsert` / `contacts.update` | Data kontak berubah |
-| `groups.upsert` / `groups.update` | Informasi grup berubah |
-| `group-participants.update` | Ada yang masuk/keluar/di-promosi |
-| `creds.update` | Kredensial sesi perlu disimpan ulang |
-| `presence.update` | Ada yang sedang mengetik / online |
-
-Contoh menangani peserta grup baru:
+`connection.update` (status koneksi & QR), `messages.upsert` (pesan baru),
+`messages.update` (dibaca/diedit/dihapus/vote poll),
+`messaging-history.set` (sinkron riwayat pertama), `chats.upsert/update/delete`,
+`contacts.upsert/update`, `groups.upsert/update`, `group-participants.update`,
+`creds.update` (simpan sesi), `presence.update` (online/sedang mengetik).
 
 ```js
 sock.ev.on("group-participants.update", async (event) => {
     if (event.action === "add") {
-        await sock.sendMessage(event.id, { text: `Selamat datang @${event.participants[0].split("@")[0]}!`, mentions: event.participants });
+        await sock.sendMessage(event.id, {
+            text: `Selamat datang @${event.participants[0].split("@")[0]}!`,
+            mentions: event.participants
+        });
     }
 });
 ```
 
-## Fungsi Utilitas
+## Utilitas
 
-Semua ini bisa diimpor langsung dari `"@revizahoshii/baileys"`:
+Semuanya diekspor dari entry point utama:
 
-| Fungsi | Kegunaan |
-|---|---|
-| `getContentType(pesan)` | Tahu jenis isi pesan (`imageMessage`, `conversation`, dst.) |
-| `getDevice(pesan)` | Tahu perangkat pengirim (`android`, `desktop`, `smba`) |
-| `normalizeMessageContent(m)` | Buka bungkus pesan (`viewOnce`, `ephemeral`, album, dll.) jadi isi aslinya |
-| `hasValidAlbumMedia` / `getAggregateResponsesInEventMessage` | Tambahan khas fork ini |
-| `jidDecode("62..@s.whatsapp.net")` | Pecah JID jadi `{ user, server, agent, device }` |
-| `jidNormalizedUser(jid)` | Normalisasi JID (buang agent/device) |
-| `isJidGroup` / `isJidBroadcast` / `isJidStatusBroadcast` | Cek jenis JID |
-| `downloadMediaMessage` / `downloadContentFromMessage` | Unduh media |
-| `prepareWAMessageMedia` | Siapkan media sebelum dikirim (untuk kontrol penuh) |
-| `generateWAMessageFromContent` | Susun objek pesan mentah |
-| `updateMediaMessage` | Kirim ulang media yang habis masa berlakunya |
-| `getAggregateVotesInPollMessage` | Baca hasil vote poll |
-| `useMultiFileAuthState` / `useSingleFileAuthState` / `useSqliteAuthState` | Simpan sesi (folder / satu file / SQLite) |
-| `makeCacheableSignalKeyStore` | Cache kunci sesi (lebih cepat & lebih awet) |
-| `initAuthCreds` | Bikin kredensial kosong dari nol |
-| `makeInMemoryStore` | Penyimpanan chat/kontak sementara di memori |
-| `useSqliteAuthState({ dbPath })` | Simpan sesi di SQLite (butuh `better-sqlite3`) |
-| `Browsers` | Pengaturan identitas perangkat (`macOS`, `windows`, `ubuntu`, `android`, `baileys`, `appropriate`) |
-| `delay(ms)` | Jeda (Promise) |
-| `fetchLatestRevizaBaileysVersion()` / `fetchLatestWaWebVersion()` | Ambil nomor versi WA untuk opsi `version` |
-| `proto` | Akses objek protokol WhatsApp (`proto.Message`, `proto.WebMessageInfo`) |
+- `getContentType(pesan)` — jenis isi pesan (`imageMessage`, `conversation`, ...)
+- `getDevice(pesan)` — perangkat pengirim (`android`, `desktop`, `smba`)
+- `normalizeMessageContent(m)` — buka bungkus `viewOnce`/`ephemeral`/album jadi isi aslinya
+- `hasValidAlbumMedia`, `hasValidCarouselHeader`, `getAggregateResponsesInEventMessage` — tambahan khas fork ini
+- `jidDecode`, `jidNormalizedUser`, `isJidGroup`, `isJidBroadcast`, `isJidStatusBroadcast` — kerjaan seputar JID
+- `downloadMediaMessage`, `downloadContentFromMessage`, `prepareWAMessageMedia`, `updateMediaMessage` — media
+- `generateWAMessage`, `generateWAMessageFromContent`, `generateForwardMessageContent` — susun pesan manual
+- `getAggregateVotesInPollMessage` — hasil vote poll
+- `useMultiFileAuthState` (folder), `useSingleFileAuthState` (satu file), `useSqliteAuthState({ dbPath })` (SQLite, butuh `better-sqlite3`), `initAuthCreds` — sesi
+- `makeCacheableSignalKeyStore` — cache kunci sesi
+- `makeInMemoryStore` — chat/kontak di RAM (praktis, tapi boros memori untuk pemakaian serius)
+- `Browsers` — identitas perangkat (`macOS`, `windows`, `ubuntu`, `android`, `baileys`, `appropriate`)
+- `delay(ms)`, `fetchLatestRevizaBaileysVersion()`, `fetchLatestWaWebVersion()`, `proto`
 
-Penyimpanan di memori (praktis untuk bot kecil, **boros RAM** untuk pemakaian serius):
+## Format JID
 
-```js
-import makeWASocket, { makeInMemoryStore } from "@revizahoshii/baileys";
+Tujuan pesan harus `[kode negara][nomor]@s.whatsapp.net`, selalu tanpa `+`
+(Indonesia → `62`). Grup berbentuk `123...@g.us`, status `status@broadcast`,
+saluran `123...@newsletter`.
 
-const store = makeInMemoryStore({});
-store.readFromFile("./reviza_store.json");
-setInterval(() => store.writeToFile("./reviza_store.json"), 10_000);
+## Panggilan suara (VoIP)
 
-const sock = makeWASocket({});
-store.bind(sock.ev);
+Library ini bisa menelpon nomor WhatsApp dan memutar audio ke dalam panggilan —
+mirip bot musik di Discord. **`ffmpeg` wajib terpasang** di server
+(`sudo apt install ffmpeg`, atau `pkg install ffmpeg` di Termux).
 
-sock.ev.on("chats.upsert", () => console.log(store.chats.all()));
-```
-
-## Format ID WhatsApp (JID)
-
-ID tujuan (disebut **JID**) wajib format `[kode negara][nomor]@s.whatsapp.net`:
-
-| Untuk | Format | Contoh |
-|---|---|---|
-| Pengguna | `nomor@s.whatsapp.net` | `6281234567890@s.whatsapp.net` |
-| Grup | `id-internal@g.us` | `120363012345678901@g.us` |
-| Broadcast list | `[waktu-dibuat]@broadcast` | — |
-| Status/story | `status@broadcast` | — |
-
-Nomor **selalu** pakai kode negara tanpa `+` (Indonesia → `62`).
-
-## Panggilan Suara (VoIP)
-
-Library ini bisa **menelepon nomor WhatsApp** dan memutar audio ke dalam
-panggilan itu — mirip bot musik di Discord. Cocok untuk fitur *fake call*
-atau pemutar musik lewat telepon WA.
-
-### Prasyarat tambahan
-
-**`ffmpeg` wajib terpasang** di server/PC Anda — dipakai untuk mengubah file
-audio menjadi PCM yang bisa dikirim ke panggilan.
-
-```bash
-# Ubuntu / Debian / VPS
-sudo apt install ffmpeg
-
-# Termux
-pkg install ffmpeg
-```
-
-Cek berhasil: `ffmpeg -version`.
-
-### Cara pakai
-
-`VoipClient` dipakai **menempel pada socket yang sudah tersambung**, jadi
-akun harus sudah login lebih dulu.
+`VoipClient` menempel pada socket yang sudah login:
 
 ```js
-import makeWASocket, { useMultiFileAuthState, VoipClient } from "@revizahoshii/baileys";
+import makeWASocket, { useMultiFileAuthState, VoipClient } from "@zachannxd/baileys";
 
 const { state, saveCreds } = await useMultiFileAuthState("./auth");
 const sock = makeWASocket({ auth: state });
@@ -688,332 +570,87 @@ sock.ev.on("connection.update", async ({ connection }) => {
   await voip.connectWithSocket(sock);
 
   const call = await voip.call("6281234567890", {
-    durationMs: 30_000,        // telepon otomatis ditutup setelah 30 detik
-    audioSource: "./lagu.mp3", // audio yang diputar ke lawan bicara
+    durationMs: 30_000,         // otomatis ditutup setelah 30 detik
+    audioSource: "./lagu.mp3",  // yang diputar ke lawan bicara
   });
 
   call.on("ringing",   () => console.log("HP tujuan berdering..."));
-  call.on("connected", () => console.log("Panggilan diangkat, musik diputar"));
-  call.on("ended",     (alasan) => console.log("Panggilan selesai:", alasan));
+  call.on("connected", () => console.log("Diangkat, musik diputar"));
+  call.on("ended",     (alasan) => console.log("Selesai:", alasan));
 
   await call.waitForEnd();
   voip.disconnect();
 });
 ```
 
-### Pilihan `audioSource`
+`audioSource` bisa `"silence"` (default, fake call murni), path file audio apa pun
+yang didukung ffmpeg, URL streaming, atau filter ffmpeg seperti
+`"lavfi:sine=frequency=440"` untuk nada buatan. Anggota lain yang tersedia:
+`call.end()`, `call.mute(true)`, `call.state` (lihat `CallState`), dan event
+`audio` untuk menerima PCM dari lawan bicara.
 
-| Nilai | Artinya |
-|---|---|
-| `"silence"` | **Default.** Tidak ada suara — murni *fake call*. |
-| `"./lagu.mp3"` | Putar file audio dari disk (format apa pun yang didukung ffmpeg). |
-| `"https://..."` | Putar audio langsung dari URL streaming. |
-| `"lavfi:sine=frequency=440"` | Nada buatan lewat filter ffmpeg. |
-
-### Method dan event
-
-| Anggota | Kegunaan |
-|---|---|
-| `new VoipClient()` | Membuat klien VoIP. |
-| `voip.connectWithSocket(sock)` | Menempel ke socket yang sudah login. **Wajib dipanggil dulu.** |
-| `voip.call(nomor, opsi)` | Memulai panggilan, mengembalikan objek `ActiveCall`. |
-| `voip.disconnect()` | Menutup semua dan melepas memori. |
-| `call.end()` | Menutup panggilan lebih awal. |
-| `call.mute(true)` | Membisukan mikrofon. |
-| `call.waitForEnd()` | `await` sampai panggilan berakhir. |
-| `call.state` | Status saat ini (lihat `CallState`). |
-| Event `ringing` | HP tujuan mulai berdering. |
-| Event `connected` | Panggilan diangkat. |
-| Event `audio` | Menerima PCM suara dari lawan bicara. |
-| Event `ended` | Panggilan berakhir, membawa alasannya. |
-
-`CallState` berisi: `Idle` `Calling` `PreacceptReceived` `ReceivedCall`
-`AcceptSent` `AcceptReceived` `Active` `ActiveElsewhere` `Ending`.
-
-### Catatan penting
+Beberapa hal yang perlu kamu tahu:
 
 - Nomor tujuan ditulis **tanpa** `@s.whatsapp.net` — cukup `6281234567890`.
 - Panggilan berjalan dari akun yang sedang login, jadi tercatat di riwayat
-  telepon WhatsApp akun tersebut.
-- Modul ini memuat mesin WASM ±9,8 MB saat pertama dipakai. Wajar kalau
-  panggilan pertama sedikit lebih lambat.
-- Jangan dipakai untuk spam telepon — akun berisiko diblokir WhatsApp.
+  teleponnya.
+- Modul ini memuat mesin WASM ±9,8 MB saat pertama dipakai — panggilan pertama
+  agak lambat, wajar.
+- Jangan dipakai spam telepon; akun berisiko diblokir WhatsApp.
 
-## Kontak & Channel Reviza
+## Kontak & saluran
 
-Semua tautan di bawah ini diambil dari situs resmi Reviza: <https://revizayowa.biz.id/>
+Semua tautan diambil dari <https://revizayowa.biz.id/>:
 
-| Kanal | Tautan |
-|---|---|
-| WhatsApp (Admin) | https://wa.me/628978595858 |
-| Telegram | https://t.me/zayuyoo |
-| Instagram | https://instagram.com/Always_revizaa |
-| TikTok | https://www.tiktok.com/@reviza4ever |
-| YouTube | https://www.youtube.com/@reviza4ever |
-| Discord | https://discord.gg/7Nn352cN9b |
-| Grup WhatsApp | https://chat.whatsapp.com/BW0zgEgEPUOI5Arb80RWG0 |
-| Dukungan (Saweria) | https://saweria.co/REVIZAHOSHI |
+- WhatsApp Admin: <https://wa.me/628978595858>
+- Telegram: <https://t.me/zayuyoo>
+- Instagram: <https://instagram.com/Always_revizaa>
+- TikTok: <https://www.tiktok.com/@reviza4ever>
+- YouTube: <https://www.youtube.com/@reviza4ever>
+- Discord: <https://discord.gg/7Nn352cN9b>
+- Grup WhatsApp: <https://chat.whatsapp.com/BW0zgEgEPUOI5Arb80RWG0>
+- Dukungan (Saweria): <https://saweria.co/REVIZAHOSHI>
 
-### Saluran (Channel) WhatsApp Reviza
+Saluran Reviza yang sering dipakai bot:
 
-| Nama saluran | Kode undangan | JID untuk dipakai via library |
-|---|---|---|
-| Preset AM / Saluran preset | https://whatsapp.com/channel/0029Vb7xLulDJ6GrrJGtU51t | `120363426118421279@newsletter` |
-| Info Channel | https://whatsapp.com/channel/0029VbBc5ak3AzNL2pXnJJ1u | `120363423129630445@newsletter` |
+- Preset AM / Saluran preset — <https://whatsapp.com/channel/0029Vb7xLulDJ6GrrJGtU51t> (`120363426118421279@newsletter`)
+- Info Channel — <https://whatsapp.com/channel/0029VbBc5ak3AzNL2pXnJJ1u> (`120363423129630445@newsletter`)
 
-JID di atas berguna kalau Anda mengirim atau menjadwalkan konten ke saluran lewat `sock.sendMessage(jid, ...)`.
-
-### Mengikuti saluran lewat kode
-
-Library ini **tidak mengikuti saluran apa pun secara otomatis**. Mengikuti saluran adalah
-keputusan pemilik akun, jadi jalankan langsung dari kode bot Anda sendiri (misal sekali saat
-`connection === 'open'`):
+**Library ini tidak mengikuti saluran apa pun secara otomatis** — keputusan
+mengikuti saluran punya pemilik akun. Kalau bot kamu mau ikut saluran sendiri,
+panggil langsung dari kode bot (misal sekali saat koneksi terbuka):
 
 ```js
-await sock.newsletterFollow('120363426118421279@newsletter');
+await sock.newsletterFollow("120363426118421279@newsletter");
 ```
 
-`409` artinya sudah pernah ikut, `429`/`503` artinya sedang dibatasi sementara — keduanya tidak
-menghentikan bot.
+`409` berarti sudah ikut, `429`/`503` lagi dibatasi — dua-duanya tidak mengganggu bot.
 
-## Kepemilikan & Identitas Proyek
+## Catatan sebelum dipakai
 
-Paket ini adalah proyek pribadi **Reviza**, dikemas untuk kebutuhan bot dan aplikasinya sendiri.
+**Fallback donasi.** Ada nilai `DONATE_URL = "https://saweria.co/REVIZAHOSHI"` di
+`lib/Defaults/index.js` yang jadi nilai cadangan di tiga tempat: `externalAdReply`
+yang dikirim tanpa `url`, tombol offer yang `offerUrl`-nya kosong, dan link
+`richResponseMessage` tanpa `url`. Semuanya cuma kena kalau field-nya kosong —
+isi `url` sendiri dan tidak ada yang berubah.
 
-| Aspek | Keterangan |
-|---|---|
-| Nama paket | `@revizahoshii/baileys` |
-| Versi | `0.3.18-final` |
-| Pemegang hak cipta | **Reviza** — © 2026 (lihat `LICENSE`) |
-| Penulis di `package.json` | `author: "Reviza"` |
-| Lisensi | MIT |
-| Rumah proyek | https://github.com/revizahoshii-no/reviza-baileys |
-| Kontak & kanal | lihat [Kontak & Channel Reviza](#kontak--channel-reviza) |
+**Jejak perubahan.** Fork ini bukan sekadar ganti nama. Ada 80-an penanda
+`Reviza@Changes` / `Reviza@Note` di 12 file `lib/`, menambah jenis dan opsi pesan
+yang tidak ada di upstream: album, quiz saluran, poll snapshot/update, reaction
+update, request payment, invoice, order, group status, spoiler, ephemeral,
+view-once V2, lottie sticker, `single_select`, native flow, validasi album/carousel,
+dan lapisan rich message — ditambah perbaikan newsletter dan pengurangan pemakaian RSS.
 
-**Jejak perubahan Reviza di dalam source.** Fork ini bukan cuma ganti nama: ada **80 penanda**
-`Reviza@Changes` / `Reviza@Note` tersebar di **12 file** `lib/`, tercatat sejak 30-01-26.
-Kebanyakan menambah jenis & opsi pesan yang tidak ada di Baileys upstream:
+**Yang tetap milik upstream.** Basis kode Baileys, protokol `WAProto/`,
+implementasi Signal, dan semua dependency — bukan milik saya, dan tidak pernah
+diklaim. File `LICENSE` MIT dibiarkan utuh beserta pemberitahuan hak ciptanya.
+Jangan hapus file itu kalau kamu menyalin atau memakai paket ini.
 
-- `album`, `quiz` (khusus saluran), `poll result snapshot`, `poll update`, `reaction`/`receipt` update
-- `request payment`, `invoice`, `order`, `groupStatus`, `spoiler`, `ephemeral`, `viewOnceV2`,
-  `lottieSticker`, `futureProofMessage`, `interactiveAsTemplate`, `native flow`
-- `single_select` shortcut, validasi `hasValidAlbumMedia` / `hasValidCarouselHeader`,
-  `getAggregateResponsesInEventMessage`, `normalizeMessageContent`
-- lapisan rich message (`lib/Utils/rich-message-utils.js`, bertanda `[WIP]`), `useSingleFileAuthState`
-  dengan LRUCache + mutex, perbaikan newsletter (`/m1/`, thumbnail server, `additionalNodes`),
-  `newsletterSubscribed`, pengurangan pemakaian RSS, `lib/Store/make-in-memory-store.js` (`[WIP]`)
+## Terima kasih
 
-**Perlu Anda ketahui sebelum pakai:** ada nilai `DONATE_URL = "https://saweria.co/REVIZAHOSHI"` di
-`lib/Defaults/index.js` yang dipakai sebagai **nilai cadangan** pada tiga tempat:
+Library ini berdiri di atas kerja banyak orang:
 
-| Kondisi | Yang terjadi |
-|---|---|
-| `externalAdReply` dikirim tanpa `url` | `url` diisi `DONATE_URL` |
-| `offerText` diisi tapi `offerUrl` kosong | tombol offer menunjuk `DONATE_URL` (teks offer jatuh ke `LIBRARY_NAME`, yaitu `@revizahoshii/baileys`) |
-| `richResponseMessage` punya link tanpa `url` | memakai `DONATE_URL`, label sumbernya `"Donate"` / `"Saweria"` |
-
-Semuanya hanya kena kalau field-nya memang kosong — kirim `url` sendiri dan tidak ada yang berubah.
-
-**Yang tetap milik upstream:** basis kode Baileys, protokol `WAProto/`, implementasi Signal, dan
-seluruh dependency di `package.json`. Tidak ada klaim kepemilikan atas bagian ini — karena itu
-`LICENSE` MIT dibiarkan utuh beserta pemberitahuan hak ciptanya.
-
-## Lisensi
-
-Ketentuan lisensi dan pemberitahuan hak cipta yang diwajibkan oleh komponen sumber tetap tersedia
-di file `LICENSE`. File tersebut tidak dihapus atau diubah.
-
-## Catatan
-
-Jangan menghapus file `LICENSE` ketika menyalin atau menggunakan paket ini apabila ketentuan
-lisensinya mewajibkan pemberitahuan tersebut tetap disertakan.
-
-### Kutipan bercentang biru tanpa akun terverifikasi
-
-Menampilkan header **WhatsApp Business (centang biru) · Status** pada balasan bot,
-lengkap dengan foto pada avatar kutipan, sambil tetap mempertahankan tombol saluran
-dan `externalAdReply` milikmu.
-
-Dua hal yang bekerja terpisah:
-
-- **Lencana centang** berasal dari `participant`. Klien WhatsApp menggambar lencana
-  untuk JID sistem `0@s.whatsapp.net` dari daftar bawaan aplikasi, bukan dari
-  pengecekan sertifikat ke server. Akun yang menjalankan bot tidak perlu terverifikasi.
-- **Avatar bulat** berasal dari baris `TEL;waid=` di dalam vcard. WhatsApp menarik
-  foto profil nomor tersebut. Tanpa `waid`, avatar tampil abu-abu.
-
-```js
-await sock.sendOfficialReply(jid, { text: 'Hasil HD IMAGE' }, {
-  name: 'REVIZA DELUXE',
-  waid: m.sender,
-})
-```
-
-Isi `waid` dengan nomor pengguna yang menjalankan perintah agar avatarnya mengikuti
-foto profil mereka, atau satu nomor tetap agar avatarnya selalu sama.
-
-#### Digabung dengan tombol saluran dan gambar besar
-
-```js
-import { withOfficialQuote } from '@revizahoshii/baileys'
-
-await sock.sendMessage(jid, withOfficialQuote(
-  { text: 'Hasil HD IMAGE' },
-  {
-    name: 'REVIZA DELUXE',
-    waid: m.sender,
-    contextInfo: {
-      forwardedNewsletterMessageInfo: {
-        newsletterJid: '120363426118421279@newsletter',
-        newsletterName: 'Komunitas Reviza D Kink',
-        serverMessageId: 127,
-      },
-      externalAdReply: {
-        title: 'HD IMAGE',
-        body: 'Reply gambar yang mau dijernihkan',
-        sourceUrl: 'https://revizayowa.biz.id/',
-        mediaType: 1,
-        renderLargerThumbnail: true,
-      },
-    },
-  },
-))
-```
-
-Tombol **Lihat saluran** tetap mengarah ke salurannmu sendiri.
-
-| Opsi | Keterangan |
-|---|---|
-| `name` | Nama yang tampil pada kutipan. Default `'WhatsApp'` |
-| `waid` | Nomor pemilik foto profil untuk avatar kutipan. Tanda plus dan spasi diabaikan |
-| `participant` | JID pengirim kutipan, penentu lencana. Default `0@s.whatsapp.net` |
-| `contact` | `true` (bawaan) kartu kontak, `false` teks biasa |
-| `thumbnail` | Buffer gambar. Bila diisi, kutipan memakai `imageMessage` dan `waid` diabaikan |
-| `contextInfo` | `contextInfo` tambahan, mis. saluran dan `externalAdReply` |
-
-### Pesan langsung tampil tanpa tombol Unduh
-
-Sejak versi `0.5.1`, pesan AI Rich otomatis menyertakan `messageSecret` sehingga
-langsung tampil di perangkat penerima. Sebelumnya WhatsApp menampilkan peringatan
-*"WhatsApp tidak dapat memastikan pesan ini aman"* beserta tombol **Unduh**, karena
-pustaka ini mengirim `verificationMetadata` berisi sertifikat acak yang gagal divalidasi.
-
-Tidak ada yang perlu kamu ubah — perilaku ini aktif secara bawaan.
-
-Bila tetap ingin mengirim `verificationMetadata` seperti versi lama:
-
-```js
-await sock.sendMessage(jid, {
-  contentText: 'Halo!',
-  fakeVerification: true,
-})
-```
-
-Kamu juga bisa menentukan `messageSecret` sendiri:
-
-```js
-await sock.sendMessage(jid, {
-  contentText: 'Halo!',
-  messageSecret: Buffer.alloc(32),
-})
-```
-
-## Balasan Bercentang Biru (Verified Reply)
-
-Membuat balasan bot tampil seolah mengutip pesan dari saluran terverifikasi, sehingga
-muncul lencana centang biru pada kutipan. Tersedia preset **WhatsApp**, **Meta AI**,
-dan saluran **custom** milikmu sendiri.
-
-### Cara tercepat
-
-Helper ini otomatis terpasang pada socket:
-
-```js
-await sock.sendVerifiedReply(jid, { text: 'Halo!' }, { preset: 'whatsapp' })
-await sock.sendVerifiedReply(jid, { text: 'Halo!' }, { preset: 'meta' })
-```
-
-### Saluran custom
-
-```js
-await sock.sendVerifiedReply(jid, { text: 'Halo!' }, {
-  name: 'Reviza Official',
-  jid: '120363420054181921@newsletter',
-  text: 'Pesan dari saluran resmi',
-})
-```
-
-### Membungkus isi pesan sendiri
-
-`withVerifiedReply` bisa dipakai pada jenis pesan apa pun (teks, gambar, video, dan lainnya):
-
-```js
-import { withVerifiedReply } from '@revizahoshii/baileys'
-
-await sock.sendMessage(jid, withVerifiedReply(
-  { image: { url: './gambar.jpg' }, caption: 'Halo!' },
-  { preset: 'meta' },
-))
-```
-
-### Sebagai objek `quoted`
-
-```js
-import { createVerifiedQuote } from '@revizahoshii/baileys'
-
-await sock.sendMessage(jid, { text: 'Halo' }, {
-  quoted: createVerifiedQuote({ preset: 'whatsapp', text: 'Pemberitahuan resmi' }),
-})
-```
-
-### Opsi
-
-| Opsi | Tipe | Keterangan |
-|---|---|---|
-| `preset` | `'whatsapp'` \| `'meta'` | Identitas bawaan. Default `'whatsapp'` |
-| `name` | `string` | Nama yang tampil pada kutipan (menimpa preset) |
-| `jid` | `string` | JID saluran, wajib berakhiran `@newsletter` (menimpa preset) |
-| `text` | `string` | Isi pesan yang seolah dikutip |
-| `participant` | `string` | Pengirim kutipan. Default `0@s.whatsapp.net` |
-| `serverMessageId` | `number` | ID pesan pada saluran. Diacak bila dikosongkan |
-| `contentType` | `number` | Lihat `VerifiedContentType` (`UPDATE`, `UPDATE_CARD`, `LINK_CARD`) |
-| `quotedMessage` | `object` | Pesan kutipan custom, menimpa `text` |
-| `contextInfo` | `object` | `contextInfo` tambahan yang digabungkan |
-
-### Fungsi yang tersedia
-
-| Fungsi | Kegunaan |
-|---|---|
-| `sock.sendVerifiedReply(jid, content, options, sendOptions)` | Kirim langsung, cara paling singkat |
-| `withVerifiedReply(content, options)` | Bungkus isi pesan apa pun |
-| `createVerifiedQuote(options)` | Hasilkan objek `quoted` palsu |
-| `buildVerifiedContextInfo(options)` | Hasilkan `contextInfo` mentah |
-| `buildVerifiedNewsletterInfo(options)` | Hasilkan `forwardedNewsletterMessageInfo` saja |
-| `bindVerifiedReply(sock)` | Pasang manual ke socket (sudah otomatis) |
-
-> Fitur ini hanya mengubah tampilan kutipan di sisi penerima dan tidak memberi
-> verifikasi resmi apa pun pada akunmu. Gunakan dengan bijak.
-
-## Repository
-
-Sumber resmi proyek: https://github.com/revizahoshii-no/reviza-baileys
-
-Contoh penggunaan di halaman ini diadaptasi dari dokumentasi
-[Baileys (`WhiskeySockets/Baileys`)](https://github.com/WhiskeySockets/Baileys) dan diterjemahkan
-serta disesuaikan ke `@revizahoshii/baileys`.
-
-## Kredit & Terima Kasih
-
-Pustaka ini tidak berdiri sendiri — ia berdiri di atas kerja banyak pihak. Terima kasih
-sebesar-besarnya untuk semua fork dan pengembang Baileys yang karyanya mengalir ke
-`@revizahoshii/baileys`:
-
-| Proyek / Pengembang | Peran |
-|---|---|
-| [**Baileys** — Adhiraj Singh (`adiwajshing`)](https://github.com/adiwajshing/Baileys) | Pustaka asal. Basis kode, protokol `WAProto/`, dan implementasi Signal berasal dari sini |
-| [**Baileys** — WhiskeySockets](https://github.com/WhiskeySockets/Baileys) | Kelanjutan resmi Baileys yang menjadi dasar fork ini |
-| [**ourin-baileys** — zanpiww (`@Zann`)](https://www.npmjs.com/package/ourin-baileys) | Pengembang Ourin MD. Modul **VoIP** (panggilan suara / *fake call* + putar musik) di pustaka ini berasal dari `ourin-baileys` (Lisensi MIT) — terima kasih banyak, zanpiww |
-| [**reviza-baileys** — Reviza](https://github.com/revizahoshii-no/reviza-baileys) | Proyek ini sendiri: penyesuaian, penambahan jenis & opsi pesan, dan pemeliharaan |
-
-Tidak ada klaim kepemilikan atas bagian mana pun yang berasal dari proyek-proyek di atas.
-Pemberitahuan hak cipta dan ketentuan lisensinya tetap tersedia di file `LICENSE`.
+- [Baileys — adiwajshing](https://github.com/adiwajshing/Baileys), pustaka asalnya.
+- [Baileys — WhiskeySockets](https://github.com/WhiskeySockets/Baileys), kelanjutan resmi yang jadi dasar fork ini.
+- [ourin-baileys — zanpiww (@Zann)](https://www.npmjs.com/package/ourin-baileys), modul VoIP (panggilan suara + putar musik) berasal dari sini. Terima kasih banyak.
+- Reviza — penyesuaian, penambahan fitur, dan pemeliharaan fork ini.

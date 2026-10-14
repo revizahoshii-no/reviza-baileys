@@ -1,5 +1,5 @@
 {
-    "name": "@revizahoshii/baileys",
+    "name": "@zachannxd/baileys",
     "version": "0.6.0",
     "description": "Fork Baileys milik Reviza — pesan interaktif, album, newsletter, dan panggilan suara (VoIP).",
     "main": "lib/index.js",
