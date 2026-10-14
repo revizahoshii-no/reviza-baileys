@@ -51,13 +51,9 @@ Berasal dari **Baileys** (`@whiskeysockets/baileys`) dan disesuaikan dengan kebu
 
 ## Instalasi
 
-Dari registry npm:
-
-```bash
-npm install @revizahoshii/baileys
-```
-
-Langsung dari repository GitHub ini:
+Langsung dari repository GitHub ini (**satu-satunya sumber yang berlaku** —
+paket `@revizahoshii/*` di registry npm sudah dihapus oleh tim keamanan npm dan
+diganti placeholder, jangan install dari registry):
 
 ```bash
 npm install github:revizahoshii-no/reviza-baileys
