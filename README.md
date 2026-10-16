@@ -27,9 +27,6 @@ Atau langsung dari GitHub:
 npm install github:revizahoshii-no/reviza-baileys
 ```
 
-> Nama lama `@revizahoshii/baileys` sudah dihapus tim keamanan npm dan diganti
-> placeholder `0.0.1-security`. Jangan install dari nama lama.
-
 Kebutuhan dasarnya cuma satu: **Node.js 20 ke atas**. Ada script `preinstall` yang
 menghentikan instalasi kalau versi Node kamu di bawah itu. Paket ini ESM
 (`"type": "module"`), jadi kalau project kamu masih CommonJS, pakai
