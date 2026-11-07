@@ -10,8 +10,7 @@ dipakai bot- saya: tombol interaktif, album, kutipan centang biru, panggilan sua
 lain-lain. Kalau kamu pernah pakai Baileys, kamu sudah familiar — bedanya di sini ada
 banyak tambahan yang tidak ada di upstream.
 
-- **Paket:** `@zachannxd/baileys`
-- **Versi:** 0.6.0
+- **Paket:** `@zachannxd/baileys` (versi terbaru selalu di `package.json`)
 - **Rumah kode:** https://github.com/revizahoshii-no/reviza-baileys
 - **Lisensi:** MIT
 
